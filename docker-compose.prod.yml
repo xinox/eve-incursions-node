@@ -23,10 +23,13 @@ services:
     volumes:
       - ../backups:/db
     environment:
-      - DB_DUMP_TARGET=/db
+      - DB_DUMP_TARGET=s3://eve-incursions-mysql-backups/backups
       - DB_USER=${MYSQL_USER}
       - DB_PASS=${MYSQL_PASSWORD}
       - DB_DUMP_FREQ=1440
       - DB_DUMP_BEGIN=0
       - DB_SERVER=${MYSQL_HOST}
       - DB_DUMP_KEEP_PERMISSIONS=false
+      - AWS_ENDPOINT_URL=https://storage.googleapis.com
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY

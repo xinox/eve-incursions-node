@@ -1,0 +1,35 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "y": "graphql-codegen --config codegen.yml"
+  },
+  "dependencies": {
+    "bootstrap": "^5.0.0-beta2",
+    "chart.js": "^2.9.4",
+    "graphql": "^15.5.0",
+    "graphql-request": "^3.4.0",
+    "next": "10.0.8",
+    "react": "17.0.1",
+    "react-chartjs-2": "^2.11.1",
+    "react-dom": "17.0.1",
+    "react-timeago": "^5.2.0",
+    "sass": "^1.32.8"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "1.21.2",
+    "@graphql-codegen/introspection": "1.18.1",
+    "@graphql-codegen/typescript": "1.21.1",
+    "@graphql-codegen/typescript-graphql-request": "^3.1.0",
+    "@graphql-codegen/typescript-operations": "1.17.15",
+    "@graphql-codegen/typescript-react-apollo": "2.2.2",
+    "@types/node": "^14.14.33",
+    "@types/react": "^17.0.3",
+    "@types/react-timeago": "^4.1.2",
+    "typescript": "^4.2.3"
+  }
+}

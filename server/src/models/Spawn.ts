@@ -1,0 +1,91 @@
+import {Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn, AfterLoad, OneToMany, getConnection} from 'typeorm';
+import {ObjectType, Field, ID, Float} from 'type-graphql';
+import {Constellation} from './Constellation';
+import {System} from './System';
+import {InfluenceLogEntry} from './InfluenceLogEntry';
+import {SpawnLog} from './SpawnLog';
+
+@Entity({
+  name: 'spawns'
+})
+@ObjectType()
+export class Spawn extends BaseEntity {
+  @Field(() => ID)
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Field(() => String)
+  @Column({})
+  state: string;
+
+  @Field(() => Boolean)
+  @Column({})
+  active: boolean;
+
+  @Field(() => Boolean)
+  @Column({name: 'hasBoss'})
+  boss: boolean;
+
+  @Field(() => Date)
+  @Column({name: 'established_at'})
+  establishedAt: Date;
+
+  @Field(() => Date, {nullable: true})
+  @Column({name: 'ended_at'})
+  endedAt: Date;
+
+  @Field(() => Number)
+  @Column({})
+  influence: number;
+
+  @Column()
+  constellationId: number;
+
+  @Column()
+  type: number;
+
+  @Field(() => Constellation)
+  @ManyToOne(() => Constellation, c => c.spawns, {lazy: true})
+  constellation: Promise<Constellation>;
+
+  @Field(() => [InfluenceLogEntry])
+  @OneToMany(() => InfluenceLogEntry, il => il.spawn, {lazy: true})
+  influenceLogs: Promise<InfluenceLogEntry[]>;
+
+  @Field(() => [SpawnLog])
+  @OneToMany(() => SpawnLog, sl => sl.spawn, {lazy: true})
+  logs: Promise<SpawnLog[]>;
+
+  @Field(() => System)
+  get stagingSystem() {
+    return this.setStagingSystem();
+  }
+
+  private async setStagingSystem() {
+    const constellation = await this.constellation;
+    const systems = await constellation.systems;
+    for (const system of systems ?? []) {
+      if (system.type === 'Staging') {
+        return system;
+      }
+    }
+  }
+
+  @Field(() => [Float])
+  get influenceLogArray() {
+    return (async () => {
+      const maxEntries = 72;
+
+      const influenceLogs = await getConnection().manager.find(InfluenceLogEntry, {
+        where: {spawn: this},
+        order: {date: 'DESC'},
+        take: maxEntries
+      });
+
+      const missing = maxEntries - influenceLogs.length;
+      console.log(missing)
+      const filler = missing ? (Array(missing).fill(0)) : [];
+      return [...filler, ...influenceLogs.map(i => i.influence * 100)] as number[];
+    })();
+  }
+}

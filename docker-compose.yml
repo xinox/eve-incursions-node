@@ -1,0 +1,56 @@
+version: "3.7"
+
+services:
+  server:
+    image: node:14-alpine
+    command: sh -c "npm i && npm start"
+    working_dir: /eve-incursions/server
+    restart: unless-stopped
+    #ports:
+    #- 4001:4001
+    volumes:
+      - ./:/eve-incursions
+    environment:
+      - MYSQL_HOST
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_DB
+
+  frontend:
+    image: node:14-alpine
+    command: sh -c "npm i && npm run dev"
+    working_dir: /eve-incursions/frontend
+    restart: unless-stopped
+    #ports:
+    #- 4002:3000
+    volumes:
+      - ./:/eve-incursions
+
+  mysql:
+    image: mysql:5.7
+    restart: unless-stopped
+    volumes:
+      - eve-incursions-mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB}
+      MYSQL_ROOT_HOST: "%"
+    ports:
+    - 3313:3306
+
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile.dev:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
+
+volumes:
+  eve-incursions-mysql-data:
+  caddy_data:
+  caddy_config:

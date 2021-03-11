@@ -33,7 +33,7 @@ export default function Home({activeCommunities}: ActiveCommunitiesQuery) {
       {activeCommunities.map((community) => {
       
       return (
-        <tr>
+        <tr key={community.name}>
           <td>
             {community.vg && <img src={"/images/tick.png"} alt="VG"/>}
           </td>

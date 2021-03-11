@@ -64,7 +64,7 @@ export const updateSpawns = async (doInfluenceLogs = false) => {
         const oldState = dbSpawn.state ?? "";
         dbSpawn.influence = spawn.influence;
         dbSpawn.boss = spawn.has_boss;
-        dbSpawn.state = spawn.state;
+        dbSpawn.state = capitalize(spawn.state);
 
         await manager.save(dbSpawn);
 

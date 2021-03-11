@@ -1,4 +1,16 @@
-import {Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn, AfterLoad, OneToMany, getConnection} from 'typeorm';
+import {
+  Entity,
+  BaseEntity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToOne,
+  JoinColumn,
+  AfterLoad,
+  OneToMany,
+  getConnection,
+  CreateDateColumn, UpdateDateColumn
+} from 'typeorm';
 import {ObjectType, Field, ID, Float} from 'type-graphql';
 import {Constellation} from './Constellation';
 import {System} from './System';
@@ -40,6 +52,12 @@ export class Spawn extends BaseEntity {
 
   @Column()
   constellationId: number;
+
+  @CreateDateColumn({name: "created_at"})
+  createdAt: Date;
+
+  @UpdateDateColumn({name: "updated_at"})
+  updatedAt: Date;
 
   @Column()
   type: number;

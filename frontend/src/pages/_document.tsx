@@ -8,32 +8,32 @@ class MyDocument extends Document {
 
   render() {
     return (
-      <Html>
+      <Html lang={'en'}>
         <Head />
         <body>
         <script dangerouslySetInnerHTML={{__html: `
           (() => {
-                const setTheme = (newTheme) => {
-                  window.__theme = newTheme;
-                  preferredTheme = newTheme;
-                  document.body.className = newTheme;
-                }
-                let preferredTheme;
-                try {
-                  preferredTheme = localStorage.getItem('theme');
-                } catch (err) { }
-                window.__setPreferredTheme = function(newTheme) {
-                  setTheme(newTheme);
-                  try {
-                    localStorage.setItem('theme', newTheme);
-                  } catch (err) {}
-                }
-                var darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
-                darkQuery.addListener(function(e) {
-                  window.__setPreferredTheme(e.matches ? 'dark' : 'light')
-                });
-                setTheme(preferredTheme || (darkQuery.matches ? 'dark' : 'light'));
-              })();
+            const setTheme = (newTheme) => {
+              window.__theme = newTheme;
+              preferredTheme = newTheme;
+              document.body.className = newTheme;
+            }
+            let preferredTheme;
+            try {
+              preferredTheme = localStorage.getItem('theme');
+            } catch (err) { }
+            window.__setPreferredTheme = function(newTheme) {
+              setTheme(newTheme);
+              try {
+                localStorage.setItem('theme', newTheme);
+              } catch (err) {}
+            }
+            var darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            darkQuery.addListener(function(e) {
+              window.__setPreferredTheme(e.matches ? 'dark' : 'light')
+            });
+            setTheme(preferredTheme || (darkQuery.matches ? 'dark' : 'light'));
+          })();
           `}} />
         <Main />
         <NextScript />

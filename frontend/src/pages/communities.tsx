@@ -15,7 +15,7 @@ export default function Home({activeCommunities}: ActiveCommunitiesQuery) {
   return (
     <div className={'communities'}>
       <h1>Incursion Communities</h1>
-      <table style={{width: "100%"}} className="table table-striped">
+      <table style={{width: "100%"}} className="table">
         <thead>
         <tr>
           <th style={{width: "16px"}}>VG</th>

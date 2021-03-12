@@ -21,7 +21,7 @@ export default function Home({spawnLogs, total}: HistoryProps) {
 
   let previousDate: string = '';
   return (
-    <table style={{width: '100%'}} className="table table-striped">
+    <table style={{width: '100%'}} className="table">
       <thead>
       <tr>
         <th>Time</th>

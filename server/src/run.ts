@@ -11,7 +11,7 @@ const run = async () => {
 
   if (command === "updateSpawns") {
     const influenceLogs = args.indexOf('--influenceLogs') !== -1;
-    await updateSpawns();
+    await updateSpawns(influenceLogs);
 
   } else {
     console.log(`${command} not found`);

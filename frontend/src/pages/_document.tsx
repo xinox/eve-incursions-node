@@ -9,7 +9,9 @@ class MyDocument extends Document {
   render() {
     return (
       <Html>
-        <Head />
+        <Head>
+          <title>EVE Incursions</title>
+        </Head>
         <body>
         <script dangerouslySetInnerHTML={{__html: `
           (() => {

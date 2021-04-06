@@ -40,6 +40,9 @@ function MyApp({Component, pageProps}: AppProps) {
                   <Link href="/communities"><a className="nav-link">Communities</a></Link>
                 </li>
                 <li className="nav-item">
+                  <Link href="/rats"><a className="nav-link">Rats</a></Link>
+                </li>
+                <li className="nav-item">
                   <Link href="/about"><a className="nav-link">About</a></Link>
                 </li>
               </ul>

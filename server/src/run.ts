@@ -3,6 +3,7 @@ import {updateSpawns} from './commands/updateSpawns';
 import {updateSovereignty} from './commands/updateSovereignty';
 import {redisClient} from './lib/redis';
 import {createConnection} from './lib/db';
+import {updateRats} from './commands/updateRats';
 
 const run = async () => {
   const connection = await createConnection();
@@ -19,6 +20,8 @@ const run = async () => {
     await updateSpawns(connection, influenceLogs);
   } else if (command === "updateSovereignty") {
     await updateSovereignty(connection);
+  } else if (command === "updateRats") {
+    await updateRats(connection);
   } else {
     console.log(`${command} not found`);
   }

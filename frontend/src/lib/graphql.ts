@@ -22,6 +22,7 @@ export type Query = {
   activeSpawns: Array<Spawn>;
   activeCommunities: Array<Community>;
   spawnLogs: PaginatedSpawnLogResponse;
+  ratGroups: Array<RatGroup>;
 };
 
 
@@ -122,6 +123,69 @@ export type PaginatedSpawnLogResponse = {
   hasMore: Scalars['Boolean'];
 };
 
+export type RatGroup = {
+  __typename?: 'RatGroup';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  rats: Array<Rat>;
+};
+
+export type Rat = {
+  __typename?: 'Rat';
+  name: Scalars['String'];
+  id: Scalars['Float'];
+  graphicId: Scalars['Float'];
+  groupId: Scalars['Float'];
+  hp: Hp;
+  ehp: Hp;
+  attackTypeId?: Maybe<Scalars['Float']>;
+  attackType?: Maybe<Scalars['String']>;
+  attackMultiplier?: Maybe<Scalars['Float']>;
+  attackDuration?: Maybe<Scalars['Float']>;
+  attackAlpha?: Maybe<Scalars['Float']>;
+  attackTypes: DamageTypes;
+  shieldResistances: DamageTypes;
+  armorResistances: DamageTypes;
+  structureResistances: DamageTypes;
+  attackRange?: Maybe<Scalars['Float']>;
+  orbitRange: Scalars['Float'];
+  orbitSpeed: Scalars['Float'];
+  chaseSpeed: Scalars['Float'];
+  signatureRadius: Scalars['Float'];
+  scanResolution: Scalars['Float'];
+  ewar: Array<Ewar>;
+};
+
+export type Hp = {
+  __typename?: 'HP';
+  total: Scalars['Float'];
+  shield: Scalars['Float'];
+  armor: Scalars['Float'];
+  structure: Scalars['Float'];
+};
+
+export type DamageTypes = {
+  __typename?: 'DamageTypes';
+  kinetic: Scalars['Float'];
+  thermal: Scalars['Float'];
+  em: Scalars['Float'];
+  explosive: Scalars['Float'];
+};
+
+export type Ewar = {
+  __typename?: 'Ewar';
+  id: Scalars['Float'];
+  name: Scalars['String'];
+  values: Array<EwarValues>;
+};
+
+export type EwarValues = {
+  __typename?: 'EwarValues';
+  name: Scalars['String'];
+  value: Scalars['Float'];
+  unit?: Maybe<Scalars['String']>;
+};
+
 export type ActiveCommunitiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -190,6 +254,47 @@ export type ActiveSpawnsQuery = (
         )> }
       )> }
     ) }
+  )> }
+);
+
+export type RatGroupsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RatGroupsQuery = (
+  { __typename?: 'Query' }
+  & { ratGroups: Array<(
+    { __typename?: 'RatGroup' }
+    & Pick<RatGroup, 'id' | 'name'>
+    & { rats: Array<(
+      { __typename?: 'Rat' }
+      & Pick<Rat, 'name' | 'graphicId' | 'attackType' | 'attackAlpha' | 'attackMultiplier' | 'attackDuration' | 'attackTypeId' | 'attackRange' | 'orbitRange' | 'orbitSpeed' | 'chaseSpeed' | 'signatureRadius' | 'scanResolution'>
+      & { hp: (
+        { __typename?: 'HP' }
+        & Pick<Hp, 'total' | 'shield' | 'structure' | 'armor'>
+      ), ehp: (
+        { __typename?: 'HP' }
+        & Pick<Hp, 'total' | 'shield' | 'structure' | 'armor'>
+      ), attackTypes: (
+        { __typename?: 'DamageTypes' }
+        & Pick<DamageTypes, 'kinetic' | 'thermal' | 'em' | 'explosive'>
+      ), shieldResistances: (
+        { __typename?: 'DamageTypes' }
+        & Pick<DamageTypes, 'kinetic' | 'thermal' | 'em' | 'explosive'>
+      ), armorResistances: (
+        { __typename?: 'DamageTypes' }
+        & Pick<DamageTypes, 'kinetic' | 'thermal' | 'em' | 'explosive'>
+      ), structureResistances: (
+        { __typename?: 'DamageTypes' }
+        & Pick<DamageTypes, 'kinetic' | 'thermal' | 'em' | 'explosive'>
+      ), ewar: Array<(
+        { __typename?: 'Ewar' }
+        & Pick<Ewar, 'id' | 'name'>
+        & { values: Array<(
+          { __typename?: 'EwarValues' }
+          & Pick<EwarValues, 'name' | 'value' | 'unit'>
+        )> }
+      )> }
+    )> }
   )> }
 );
 
@@ -271,6 +376,74 @@ export const ActiveSpawnsDocument = gql`
   }
 }
     `;
+export const RatGroupsDocument = gql`
+    query ratGroups {
+  ratGroups {
+    id
+    name
+    rats {
+      name
+      graphicId
+      hp {
+        total
+        shield
+        structure
+        armor
+      }
+      ehp {
+        total
+        shield
+        structure
+        armor
+      }
+      attackType
+      attackAlpha
+      attackMultiplier
+      attackDuration
+      attackTypeId
+      attackTypes {
+        kinetic
+        thermal
+        em
+        explosive
+      }
+      shieldResistances {
+        kinetic
+        thermal
+        em
+        explosive
+      }
+      armorResistances {
+        kinetic
+        thermal
+        em
+        explosive
+      }
+      structureResistances {
+        kinetic
+        thermal
+        em
+        explosive
+      }
+      attackRange
+      orbitRange
+      orbitSpeed
+      chaseSpeed
+      signatureRadius
+      scanResolution
+      ewar {
+        id
+        name
+        values {
+          name
+          value
+          unit
+        }
+      }
+    }
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: () => Promise<T>) => Promise<T>;
 
@@ -286,6 +459,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     activeSpawns(variables?: ActiveSpawnsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<ActiveSpawnsQuery> {
       return withWrapper(() => client.request<ActiveSpawnsQuery>(ActiveSpawnsDocument, variables, requestHeaders));
+    },
+    ratGroups(variables?: RatGroupsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<RatGroupsQuery> {
+      return withWrapper(() => client.request<RatGroupsQuery>(RatGroupsDocument, variables, requestHeaders));
     }
   };
 }

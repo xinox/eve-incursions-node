@@ -6,12 +6,13 @@ import waitPort from 'wait-port';
 import {CommunityResolver} from './resolvers/CommunityResolver';
 import {SpawnLogResolver} from './resolvers/SpawnLogResolver';
 import {createConnection} from './lib/db';
+import {RatResolver} from './resolvers/RatResolver';
 
 async function main() {
   await waitPort({host: process.env.MYSQL_HOST, port: 3306});
   const connection = await createConnection();
   const schema = await buildSchema({
-    resolvers: [SpawnResolver, CommunityResolver, SpawnLogResolver] // add this
+    resolvers: [SpawnResolver, CommunityResolver, SpawnLogResolver, RatResolver] // add this
   })
   const server = new ApolloServer({ schema })
   await server.listen(4001)

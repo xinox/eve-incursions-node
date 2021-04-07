@@ -9,6 +9,7 @@
     "scheduler": "node_modules/.bin/ts-node src/scheduler.ts",
     "spawns:update": "node_modules/.bin/ts-node src/run.ts updateSpawns",
     "sov:update": "node_modules/.bin/ts-node src/run.ts updateSovereignty",
+    "rats:update": "node_modules/.bin/ts-node src/run.ts updateRats",
     "prod": "node_modules/.bin/concurrently npm:single npm:scheduler"
   },
   "author": "",

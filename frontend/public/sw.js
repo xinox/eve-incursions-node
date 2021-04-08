@@ -32,6 +32,7 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
+/*
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
@@ -45,7 +46,7 @@ self.addEventListener("activate", (event) => {
 
   // Tell the active service worker to take control of the page immediately.
   self.clients.claim();
-});
+});*/
 
 self.addEventListener("fetch", (event) => {
   // We only want to call event.respondWith() if this is a navigation request

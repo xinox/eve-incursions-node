@@ -8,13 +8,13 @@ export const Spawn = ({spawn}: { spawn: ActiveSpawnsQuery['activeSpawns'][0] }) 
   return (
     <div className="spawn">
       <h1 className="h3"><a
-        href={`http://evemaps.dotlan.net/map/${spawn.constellation.region.name}/${spawn.constellation.name}#radius`}
+        href={`https://evemaps.dotlan.net/map/${spawn.constellation.region.name}/${spawn.constellation.name}#radius`}
         target="_blank" rel="noopener">{spawn.constellation.name}</a></h1>
       <div className="information container">
         <div className="row">
           <div className="col-2">
             <img src={`https://images.evetech.net/${spawn.stagingSystem.sovereigntyHolderID < 600000 ? 'corporations' : 'alliances' }/${spawn.stagingSystem.sovereigntyHolderID}/logo?size=64`}
-                 title={'sovholder'} alt={'sovholder'}/>
+                 title={spawn.stagingSystem.sovereigntyHolderName} alt={spawn.stagingSystem.sovereigntyHolderName}/>
           </div>
           <div className="col-10">
             <dl className="row">
@@ -34,11 +34,11 @@ export const Spawn = ({spawn}: { spawn: ActiveSpawnsQuery['activeSpawns'][0] }) 
               </dd>
 
               <dt className="col-sm-6">Region</dt>
-              <dd className="col-sm-6"><a href={`http://evemaps.dotlan.net/map/${spawn.constellation.region.name}`}
+              <dd className="col-sm-6"><a href={`https://evemaps.dotlan.net/map/${spawn.constellation.region.name}`}
                                           target="_blank" rel="noopener">{spawn.constellation.region.name}</a></dd>
 
               <dt className="col-sm-6">Stag. System</dt>
-              <dd className="col-sm-6"><a href={`http://evemaps.dotlan.net/system/${spawn.stagingSystem.name}`}
+              <dd className="col-sm-6"><a href={`https://evemaps.dotlan.net/system/${spawn.stagingSystem.name}`}
                                           target="_blank" rel="noopener">{spawn.stagingSystem.name}</a></dd>
 
               <dt className="col-sm-6">Sec. Status</dt>

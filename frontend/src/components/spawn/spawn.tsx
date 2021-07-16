@@ -8,7 +8,7 @@ import Countdown from 'react-countdown';
 export const Spawn = ({spawn}: { spawn: ActiveSpawnsQuery['activeSpawns'][0] }) => {
   let lifetime = 24 * 60 * 60 * 1000;
   if (spawn.state === 'Mobilizing') {
-    lifetime *= 2;
+    lifetime *= 3;
   } else if (spawn.state === 'Established') {
     lifetime *= 8;
   }

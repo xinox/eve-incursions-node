@@ -1,4 +1,3 @@
-import {createConnection} from '../lib/db';
 import fetch from 'node-fetch';
 import {System} from '../models/System';
 import {Connection} from 'typeorm';
@@ -29,24 +28,21 @@ export const updateSovereignty = async (connection: Connection) => {
   await connection.manager.transaction(async manager => {
     for await (const sovSystem of sovSystems) {
       if (!sovSystem.alliance_id && !sovSystem.faction_id) continue;
-      const dbSystem = await System.findOne(sovSystem.system_id);
-
-      if (!dbSystem) continue;
-
       const sovId = sovSystem.alliance_id ?? sovSystem.faction_id;
+
+      if (!queryAlliances.includes(sovId)) {
+        queryAlliances.push(sovId);
+      }
+
+      const dbSystem = await System.findOne(sovSystem.system_id);
+      if (!dbSystem) continue;
 
       if (sovId !== dbSystem.sovereigntyHolderID) {
         dbSystem.sovereigntyHolderID = sovId;
 
         await manager.save(dbSystem);
-
-        if (!queryAlliances.includes(sovId)) {
-          queryAlliances.push(sovId);
-        }
       }
     }
-
-    if (queryAlliances.length === 0) return;
 
     for (let i = 0; i <= queryAlliances.length; i += 1000) {
       const nameRes = await fetch('https://esi.evetech.net/latest/universe/names', {
@@ -60,7 +56,7 @@ export const updateSovereignty = async (connection: Connection) => {
       const names: APINames[] = await nameRes.json();
 
       for await (const {name, id} of names) {
-        await manager.createQueryBuilder().update(System).set({sovereigntyHolderName: name}).where({sovereigntyHolderID: id});
+        await manager.createQueryBuilder().update(System).set({sovereigntyHolderName: name}).where({sovereigntyHolderID: id}).execute();
       }
     }
   });

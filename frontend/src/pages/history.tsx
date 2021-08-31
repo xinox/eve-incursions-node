@@ -1,8 +1,8 @@
 import React, {Fragment, ReactNode} from 'react';
 import {GraphQLClient} from 'graphql-request';
-import {ActiveCommunitiesQuery, getSdk, SpawnLogsQuery} from '../lib/graphql';
+import {getSdk, SpawnLogsQuery} from '../lib/graphql';
 import {GetServerSideProps} from 'next';
-import {log} from 'util';
+import {dotlanTransform} from '../lib/utils';
 
 export const getServerSideProps: GetServerSideProps = async ({query: {page = 1}}) => {
   const client = new GraphQLClient('http://server:4001');
@@ -55,11 +55,11 @@ export default function Home({spawnLogs, total}: HistoryProps) {
             <tr>
               <td>{date.toLocaleTimeString('de-DE', {timeStyle: 'short'})}</td>
               <td><a
-                href={`http://evemaps.dotlan.net/map/${logEntry.spawn.constellation.region.name}/${logEntry.spawn.constellation.name}#radius`}
+                href={`http://evemaps.dotlan.net/map/${dotlanTransform(logEntry.spawn.constellation.region.name)}/${dotlanTransform(logEntry.spawn.constellation.name)}#radius`}
                 target="_blank" rel="noopener">{logEntry.spawn.constellation.name}</a></td>
-              <td className="hidden-xs"><a href={`http://evemaps.dotlan.net/map/${logEntry.spawn.constellation.region.name}`}
+              <td className="hidden-xs"><a href={`http://evemaps.dotlan.net/map/${dotlanTransform(logEntry.spawn.constellation.region.name)}`}
                                            target="_blank" rel="noopener">{logEntry.spawn.constellation.region.name}</a></td>
-              <td><a href={`http://evemaps.dotlan.net/system/${logEntry.spawn.stagingSystem.name}`}
+              <td><a href={`http://evemaps.dotlan.net/system/${dotlanTransform(logEntry.spawn.stagingSystem.name)}`}
                      target="_blank" rel="noopener">{logEntry.spawn.stagingSystem.name}</a></td>
               <td className={`state state-${logEntry.state.toLocaleLowerCase()}`}>{logEntry.state}</td>
               <td>

@@ -1,6 +1,6 @@
-import React, {MouseEventHandler, useState} from 'react';
+import React, {useState} from 'react';
 import {ActiveSpawnsQuery} from '../../lib/graphql';
-import {classNames} from '../../lib/utils';
+import {classNames, dotlanTransform} from '../../lib/utils';
 
 export const System = ({system}: { system: ActiveSpawnsQuery['activeSpawns'][0]['constellation']['systems'][0] }) => {
   const [open, setOpen] = useState(false);
@@ -15,7 +15,7 @@ export const System = ({system}: { system: ActiveSpawnsQuery['activeSpawns'][0][
             </span>
           }
         </div>
-        <div className="col-4"><a href={`https://evemaps.dotlan.net/system/${system.name}`} target="_blank" rel="noopener">{system.name}</a></div>
+        <div className="col-4"><a href={`https://evemaps.dotlan.net/system/${dotlanTransform(system.name)}`} target="_blank" rel="noopener">{system.name}</a></div>
         <div className={`col text-right sec sec-${system.securityArea}`}>{system.security}</div>
         <div className="col text-right">{system.size} AU</div>
       </div>

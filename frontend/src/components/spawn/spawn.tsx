@@ -4,6 +4,7 @@ import {Systems} from './systems';
 import {Chart} from './chart';
 import TimeAgo from 'react-timeago';
 import Countdown from 'react-countdown';
+import {dotlanTransform} from '../../lib/utils';
 
 export const Spawn = ({spawn}: { spawn: ActiveSpawnsQuery['activeSpawns'][0] }) => {
   let lifetime = 24 * 60 * 60 * 1000;
@@ -17,7 +18,7 @@ export const Spawn = ({spawn}: { spawn: ActiveSpawnsQuery['activeSpawns'][0] }) 
   return (
     <div className="spawn">
       <h1 className="h3"><a
-        href={`https://evemaps.dotlan.net/map/${spawn.constellation.region.name}/${spawn.constellation.name}#radius`}
+        href={`https://evemaps.dotlan.net/map/${dotlanTransform(spawn.constellation.region.name)}/${dotlanTransform(spawn.constellation.name)}#radius`}
         target="_blank" rel="noopener">{spawn.constellation.name}</a></h1>
       <div className="information container">
         <div className="row">
@@ -44,11 +45,11 @@ export const Spawn = ({spawn}: { spawn: ActiveSpawnsQuery['activeSpawns'][0] }) 
               </dd>
 
               <dt className="col-sm-6">Region</dt>
-              <dd className="col-sm-6"><a href={`https://evemaps.dotlan.net/map/${spawn.constellation.region.name}`}
-                                          target="_blank" rel="noopener">{spawn.constellation.region.name}</a></dd>
+              <dd className="col-sm-6"><a href={`https://evemaps.dotlan.net/map/${dotlanTransform(spawn.constellation.region.name)}`}
+                                          target="_blank" rel="noopener">{dotlanTransform(spawn.constellation.region.name)}</a></dd>
 
               <dt className="col-sm-6">Stag. System</dt>
-              <dd className="col-sm-6"><a href={`https://evemaps.dotlan.net/system/${spawn.stagingSystem.name}`}
+              <dd className="col-sm-6"><a href={`https://evemaps.dotlan.net/system/${dotlanTransform(spawn.stagingSystem.name)}`}
                                           target="_blank" rel="noopener">{spawn.stagingSystem.name}</a></dd>
 
               <dt className="col-sm-6">Sec. Status</dt>

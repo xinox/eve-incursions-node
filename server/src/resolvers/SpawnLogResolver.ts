@@ -1,15 +1,15 @@
-import {Resolver, Query, Arg, ObjectType, Field, Int} from 'type-graphql';
-import {Spawn} from '../models/Spawn';
+import {Arg, Int, ObjectType, Query, Resolver} from 'type-graphql';
 import {SpawnLog} from '../models/SpawnLog';
 import {PaginatedResponse} from '../generic-types/PaginatedResponse.type';
 
 @ObjectType()
-class PaginatedSpawnLogResponse extends PaginatedResponse(SpawnLog) {}
+class PaginatedSpawnLogResponse extends PaginatedResponse(SpawnLog) {
+}
 
 @Resolver()
 export class SpawnLogResolver {
   @Query(() => PaginatedSpawnLogResponse)
-  async spawnLogs(@Arg("page", () => Int,{ defaultValue: 1}) page: number): Promise<PaginatedSpawnLogResponse>  {
+  async spawnLogs(@Arg('page', () => Int, {defaultValue: 1}) page: number): Promise<PaginatedSpawnLogResponse> {
     const perPage = 20;
     const skip = perPage * (page - 1);
 

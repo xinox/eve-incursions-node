@@ -1,8 +1,6 @@
-import {Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn} from 'typeorm';
-import {ObjectType, Field, ID, Float} from 'type-graphql';
+import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from 'typeorm';
+import {Field, Float, ID, ObjectType} from 'type-graphql';
 import {Spawn} from './Spawn';
-import {System} from './System';
-import {Region} from './Region';
 
 @Entity({
   name: 'spawn_influence_logs'
@@ -21,8 +19,8 @@ export class InfluenceLogEntry extends BaseEntity {
   @Column()
   date: Date;
 
-  @Field(() => [Spawn])
+  @Field(() => Spawn)
   @ManyToOne(() => Spawn, spawn => spawn.influenceLogs)
-  @JoinColumn({ name: "spawn_id" })
-  spawn: Promise<Spawn[]>;
+  @JoinColumn({name: 'spawn_id'})
+  spawn: Promise<Spawn>;
 }

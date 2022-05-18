@@ -2,9 +2,12 @@ version: "3.7"
 
 services:
   server:
-    image: node:14-alpine
+    image: node:16-alpine
     working_dir: /eve-incursions/server
     restart: unless-stopped
+    networks:
+      - caddy
+      - internal
     volumes:
       - ./:/eve-incursions
     environment:
@@ -14,9 +17,12 @@ services:
       - MYSQL_DB
 
   frontend:
-    image: node:14-alpine
+    image: node:16-alpine
     working_dir: /eve-incursions/frontend
     restart: unless-stopped
+    networks:
+      - caddy
+      - internal
     volumes:
       - ./:/eve-incursions
 
@@ -29,25 +35,22 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DB}
       MYSQL_ROOT_HOST: "%"
+    networks:
+      - internal
     ports:
     - 3313:3306
-
-  caddy:
-    image: caddy:latest
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - caddy_data:/data
-      - caddy_config:/config
 
   redis:
     restart: unless-stopped
     image: library/redis:6
+    networks:
+      - internal
 
 
 volumes:
   eve-incursions-mysql-data:
-  caddy_data:
-  caddy_config:
+
+networks:
+  caddy:
+    external: true
+  internal:

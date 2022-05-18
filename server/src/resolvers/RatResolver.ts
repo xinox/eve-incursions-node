@@ -1,6 +1,5 @@
-import {Resolver, Query} from 'type-graphql';
+import {Query, Resolver} from 'type-graphql';
 import {RatGroup} from '../models/Rats';
-import {Spawn} from '../models/Spawn';
 
 @Resolver()
 export class RatResolver {

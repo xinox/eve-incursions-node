@@ -41,17 +41,17 @@ export const updateSpawns = async (connection: Connection, doInfluenceLogs = fal
     for await (const spawn of spawns) {
       let dbSpawn = await Spawn.findOne({where: {constellationId: spawn.constellation_id, active: true}});
 
-      if (dbSpawn === undefined) {
+      if (!dbSpawn) {
         dbSpawn = new Spawn();
         dbSpawn.constellationId = spawn.constellation_id;
         dbSpawn.active = true;
         dbSpawn.type = 0;
         dbSpawn.establishedAt = new Date();
 
-        let stagingSystem = await System.findOne({where: {constellation: spawn.constellation_id, type: 'Staging'}});
+        let stagingSystem = await System.findOne({where: {constellationId: spawn.constellation_id, type: 'Staging'}});
 
         if (!stagingSystem || stagingSystem.id !== spawn.staging_solar_system_id) {
-          const newStagingSystem = await System.findOne(spawn.staging_solar_system_id);
+          const newStagingSystem = await System.findOneBy({id: spawn.staging_solar_system_id});
           if (!newStagingSystem) return;
 
           newStagingSystem.type = 'Staging';

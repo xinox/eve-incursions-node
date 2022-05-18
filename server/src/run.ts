@@ -25,7 +25,7 @@ const run = async () => {
   } else if (command === "updateRats") {
     await updateRats(connection);
   } else if (command === "calculateHSSpawn") {
-    await calculateHSSpawn(connection);
+    await calculateHSSpawn();
   } else if (command === "updateSystems") {
     await updateSystems(connection);
   } else {

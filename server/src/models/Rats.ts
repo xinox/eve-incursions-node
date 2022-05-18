@@ -40,7 +40,7 @@ export class EwarValues {
   value: number;
 
   @Field({nullable: true})
-  unit?: string
+  unit?: string;
 }
 
 @ObjectType()
@@ -137,6 +137,6 @@ export class RatGroup extends BaseEntity {
   name: string;
 
   @Field(() => [Rat])
-  @Column("simple-json")
+  @Column('simple-json')
   rats: Rat[];
 }

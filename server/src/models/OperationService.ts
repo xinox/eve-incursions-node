@@ -1,6 +1,5 @@
-import {Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, PrimaryColumn} from 'typeorm';
-import { ObjectType, Field, ID } from "type-graphql";
-import {System} from './System';
+import {BaseEntity, Entity, JoinColumn, ManyToOne, PrimaryColumn} from 'typeorm';
+import {Field, ObjectType} from 'type-graphql';
 import {Station} from './Station';
 
 @Entity({
@@ -10,12 +9,12 @@ import {Station} from './Station';
 export class OperationService extends BaseEntity {
   @Field(() => Station)
   @ManyToOne(() => Station, station => station.operationServices)
-  @JoinColumn({ name: "operationID", referencedColumnName: "operationID" })
+  @JoinColumn({name: 'operationID', referencedColumnName: 'operationID'})
   station: Promise<Station>;
 
-  @PrimaryColumn({name: "serviceID"})
+  @PrimaryColumn({name: 'serviceID'})
   serviceId: number;
 
-  @PrimaryColumn({name: "operationID"})
+  @PrimaryColumn({name: 'operationID'})
   operationId: number;
 }

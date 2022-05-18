@@ -273,7 +273,7 @@ export const updateRats = async (connection: Connection) => {
     }
 
 
-    let dbGroup = await RatGroup.findOne(groupId);
+    let dbGroup = await RatGroup.findOneBy({id: groupId});
     if (!dbGroup) dbGroup = new RatGroup();
 
     dbGroup.id = groupId

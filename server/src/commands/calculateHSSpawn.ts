@@ -1,8 +1,8 @@
 import {Connection, MoreThan} from 'typeorm';
 import {Spawn} from '../models/Spawn';
 
-export const calculateHSSpawn = async (connection: Connection) => {
-  const spawns = await Spawn.find({where: {establishedAt: MoreThan('2020-01-01')}, order: {establishedAt: 'ASC'}});
+export const calculateHSSpawn = async () => {
+  const spawns = await Spawn.find({where: {establishedAt: MoreThan<any>('2020-01-01')}, order: {establishedAt: 'ASC'}});
 
   let lastDate: Date | null = null;
   const diffs = [];

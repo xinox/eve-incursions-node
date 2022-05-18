@@ -5,13 +5,19 @@ services:
     command: sh -c "npm i && npm start"
     ports:
     - 4001:4001
+    labels:
+      caddy: localhost
+      caddy.reverse_proxy: /api/* {{upstreams 4001}}
+      caddy.@cachedFiles.path: "*.jpg *.jpeg *.png *.gif *.ico *.svg"
+      caddy.header: '@cachedFiles Cache-Control "public, max-age=604800, must-revalidate"'
 
   frontend:
     command: sh -c "npm i && npm run dev"
     ports:
     - 4002:3000
-
-  caddy:
-    volumes:
-      - ./Caddyfile.dev:/etc/caddy/Caddyfile
+    labels:
+      caddy: localhost
+      caddy.reverse_proxy: /* {{upstreams 3000}}
+      caddy.@cachedFiles.path: "*.jpg *.jpeg *.png *.gif *.ico *.svg"
+      caddy.header: '@cachedFiles Cache-Control "public, max-age=604800, must-revalidate"'
 

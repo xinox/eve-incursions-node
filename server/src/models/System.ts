@@ -1,5 +1,5 @@
-import {Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, AfterLoad, OneToMany, JoinColumn} from 'typeorm';
-import { ObjectType, Field, ID } from "type-graphql";
+import {BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn} from 'typeorm';
+import {Field, ID, ObjectType} from 'type-graphql';
 import {Constellation} from './Constellation';
 import {Station} from './Station';
 
@@ -43,7 +43,7 @@ export class System extends BaseEntity {
   @Column({
     name: 'systemSize',
     transformer: {
-      from: value => (parseInt(value)  + 17) * 2,
+      from: value => (parseInt(value) + 17) * 2,
       to: value => value
     }
   })
@@ -68,11 +68,11 @@ export class System extends BaseEntity {
   @Field(() => String)
   private get securityArea() {
     if (this.security <= 0) {
-      return  "null";
+      return 'null';
     } else if (this.security >= 0.5) {
-      return "high";
+      return 'high';
     } else {
-      return  "low";
+      return 'low';
     }
   }
 

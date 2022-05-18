@@ -1,4 +1,4 @@
-import "reflect-metadata";
+//import "reflect-metadata";
 import { ApolloServer } from "apollo-server";
 import {buildSchema} from 'type-graphql';
 import {SpawnResolver} from './resolvers/SpawnResolver';

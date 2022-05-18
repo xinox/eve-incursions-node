@@ -45,6 +45,10 @@ a {
   }
 }
 
+.systems.table > :not(:first-child) {
+  border: none;
+}
+
 .table {
   th, td {
     &.hidden-xs {

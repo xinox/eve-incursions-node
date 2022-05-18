@@ -34,7 +34,7 @@ export const updateSovereignty = async (connection: Connection) => {
         queryAlliances.push(sovId);
       }
 
-      const dbSystem = await System.findOne(sovSystem.system_id);
+      const dbSystem = await System.findOneBy({id: sovSystem.system_id});
       if (!dbSystem) continue;
 
       if (sovId !== dbSystem.sovereigntyHolderID) {

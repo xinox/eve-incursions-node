@@ -1,7 +1,5 @@
-import {Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany} from 'typeorm';
-import { ObjectType, Field, ID } from "type-graphql";
-import {Spawn} from './Spawn';
-import {System} from './System';
+import {BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn} from 'typeorm';
+import {Field, ID, ObjectType} from 'type-graphql';
 import {Constellation} from './Constellation';
 
 @Entity({

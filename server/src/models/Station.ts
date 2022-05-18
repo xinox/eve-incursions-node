@@ -1,5 +1,5 @@
-import {Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, AfterLoad} from 'typeorm';
-import { ObjectType, Field, ID } from "type-graphql";
+import {AfterLoad, BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn} from 'typeorm';
+import {Field, ID, ObjectType} from 'type-graphql';
 import {System} from './System';
 import {OperationService} from './OperationService';
 
@@ -13,7 +13,7 @@ export class Station extends BaseEntity {
   id: string;
 
   @ManyToOne(() => System, system => system.stations)
-  @JoinColumn({ name: "solarSystemID" })
+  @JoinColumn({name: 'solarSystemID'})
   system: Promise<System>;
 
   @OneToMany(() => OperationService, os => os.station, {eager: true, lazy: true})
@@ -31,9 +31,11 @@ export class Station extends BaseEntity {
 
   @AfterLoad()
   private async setHasRepairService() {
-    this.hasRepairService = OperationService.count({where: {
+    this.hasRepairService = OperationService.count({
+      where: {
         operationId: this.operationID,
         serviceId: 4096
-      }}).then(v => v > 0);
+      }
+    }).then(v => v > 0);
   }
 }

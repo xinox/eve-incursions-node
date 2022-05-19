@@ -4,8 +4,9 @@ import {System} from '../models/System';
 import {SpawnLog} from '../models/SpawnLog';
 import {capitalize} from '../lib/utils';
 import {InfluenceLogEntry} from '../models/InfluenceLogEntry';
-import {Connection, In, Not} from 'typeorm';
+import {In, Not} from 'typeorm';
 import {redis} from '../lib/redis';
+import {AppDataSource} from '../lib/data-source';
 
 interface APISpawns {
   constellation_id: number;
@@ -25,7 +26,7 @@ const handleSpawnChange = (spawn: Spawn) => {
   })).then();
 };
 
-export const updateSpawns = async (connection: Connection, doInfluenceLogs = false) => {
+export const updateSpawns = async ( doInfluenceLogs = false) => {
   const res = await fetch('https://esi.evetech.net/latest/incursions', {
     headers: {
       'User-Agent': 'eve-incursions.de@lars.naurath@gmail.de'
@@ -35,7 +36,7 @@ export const updateSpawns = async (connection: Connection, doInfluenceLogs = fal
 
   let changed = false;
 
-  await connection.manager.transaction(async manager => {
+  await AppDataSource.manager.transaction(async manager => {
     const updatedSpawns = [];
 
     for await (const spawn of spawns) {

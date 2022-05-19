@@ -66,7 +66,7 @@ export class System extends BaseEntity {
   hasRepairStation: boolean = false;
 
   @Field(() => String)
-  private get securityArea() {
+  get securityArea() {
     if (this.security <= 0) {
       return 'null';
     } else if (this.security >= 0.5) {

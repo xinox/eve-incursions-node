@@ -1,4 +1,4 @@
-import {Connection, MoreThan} from 'typeorm';
+import {MoreThan} from 'typeorm';
 import {Spawn} from '../models/Spawn';
 
 export const calculateHSSpawn = async () => {

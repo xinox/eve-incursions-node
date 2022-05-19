@@ -1,8 +1,8 @@
 import waitPort from 'wait-port';
 import Redis from 'ioredis';
 import {Spawn} from './models/Spawn';
-import {createConnection} from './lib/db';
 import fetch, {RequestInit} from 'node-fetch';
+import {AppDataSource} from './lib/data-source';
 
 const stateMap = {
   "established": "has been established",
@@ -12,7 +12,7 @@ const stateMap = {
 }
 
 waitPort({host: process.env.MYSQL_HOST, port: 3306}).then(async () => {
-  await createConnection();
+  await AppDataSource.initialize();
   const redis = new Redis({host: 'redis'});
 
   await redis.subscribe("spawn.change");

@@ -1,9 +1,10 @@
-import {BaseEntity, Column, CreateDateColumn, Entity, Equal, getConnection, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn} from 'typeorm';
+import {BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn} from 'typeorm';
 import {Field, Float, ID, ObjectType} from 'type-graphql';
 import {Constellation} from './Constellation';
 import {System} from './System';
 import {InfluenceLogEntry} from './InfluenceLogEntry';
 import {SpawnLog} from './SpawnLog';
+import {AppDataSource} from '../lib/data-source';
 
 @Entity({
   name: 'spawns'
@@ -82,8 +83,8 @@ export class Spawn extends BaseEntity {
     return (async () => {
       const maxEntries = 72;
 
-      const influenceLogs = await getConnection().manager.find(InfluenceLogEntry, {
-        where: {spawn: this as any},
+      const influenceLogs = await AppDataSource.manager.find(InfluenceLogEntry, {
+        where: {spawn: {id: this.id}},
         order: {date: 'DESC'},
         take: maxEntries
       });
@@ -97,8 +98,8 @@ export class Spawn extends BaseEntity {
   @Field(() => Date)
   get lastStateChangeDate(): Promise<Date | undefined> {
     return (async () => {
-      const lastSpawnLog = await getConnection().manager.findOne(SpawnLog, {
-        where: {spawn: this as any},
+      const lastSpawnLog = await AppDataSource.manager.findOne(SpawnLog, {
+        where: {spawn: {id: this.id}},
         order: {date: 'DESC'}
       });
 

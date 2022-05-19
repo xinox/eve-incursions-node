@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   server:
-    command: sh -c "npm i && npm start"
+    command: sh -c "cd npm i && npm start"
     ports:
     - 4001:4001
     labels:
@@ -20,4 +20,7 @@ services:
       caddy.reverse_proxy: /* {{upstreams 3000}}
       caddy.@cachedFiles.path: "*.jpg *.jpeg *.png *.gif *.ico *.svg"
       caddy.header: '@cachedFiles Cache-Control "public, max-age=604800, must-revalidate"'
+
+  discord:
+    command: sh -c "npm i && npm start"
 

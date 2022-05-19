@@ -1,8 +1,7 @@
-import {Connection} from 'typeorm';
 import fetch from 'node-fetch';
 import {DamageTypes, Ewar, HP, Rat, RatGroup} from '../models/Rats';
 
-export const updateRats = async (connection: Connection) => {
+export const updateRats = async () => {
   const groupIds = [1052,1053,1054,1056];
   const excludeTypeIds = [3490,3487,3486,3511];
 
@@ -279,6 +278,6 @@ export const updateRats = async (connection: Connection) => {
     dbGroup.id = groupId
     dbGroup.name = group.name;
     dbGroup.rats = rats;
-    await connection.manager.save(dbGroup);
+    await dbGroup.save();
   }
 };

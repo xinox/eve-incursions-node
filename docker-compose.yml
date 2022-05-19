@@ -3,7 +3,7 @@ version: "3.7"
 services:
   server:
     image: node:16-alpine
-    working_dir: /eve-incursions/server
+    working_dir: /eve-incursions/packages/server
     restart: unless-stopped
     networks:
       - caddy
@@ -18,11 +18,26 @@ services:
 
   frontend:
     image: node:16-alpine
-    working_dir: /eve-incursions/frontend
+    working_dir: /eve-incursions/packages/frontend
     restart: unless-stopped
     networks:
       - caddy
       - internal
+    volumes:
+      - ./:/eve-incursions
+
+  discord:
+    image: node:16-alpine
+    working_dir: /eve-incursions/packages/discord
+    restart: unless-stopped
+    networks:
+      - internal
+    environment:
+      - MYSQL_HOST
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_DB
+      - DISCORD_TOKEN
     volumes:
       - ./:/eve-incursions
 

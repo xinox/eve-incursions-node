@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import {System} from '../models/System';
-import {Connection} from 'typeorm';
+import {AppDataSource} from '../lib/data-source';
 
 interface APISovereignty {
   system_id: number;
@@ -15,7 +15,7 @@ interface APINames {
   name: string;
 }
 
-export const updateSovereignty = async (connection: Connection) => {
+export const updateSovereignty = async () => {
 
   const res = await fetch('https://esi.evetech.net/latest/sovereignty/map', {
     headers: {
@@ -25,7 +25,7 @@ export const updateSovereignty = async (connection: Connection) => {
   const sovSystems: APISovereignty[] = await res.json();
   const queryAlliances: number[] = [];
 
-  await connection.manager.transaction(async manager => {
+  await AppDataSource.manager.transaction(async manager => {
     for await (const sovSystem of sovSystems) {
       if (!sovSystem.alliance_id && !sovSystem.faction_id) continue;
       const sovId = sovSystem.alliance_id ?? sovSystem.faction_id;

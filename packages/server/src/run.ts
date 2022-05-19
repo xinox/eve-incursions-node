@@ -1,14 +1,14 @@
 import "reflect-metadata";
 import {updateSpawns} from './commands/updateSpawns';
 import {updateSovereignty} from './commands/updateSovereignty';
-import {createConnection} from './lib/db';
 import {updateRats} from './commands/updateRats';
 import {calculateHSSpawn} from './commands/calculateHSSpawn';
 import {redis} from './lib/redis';
 import {updateSystems} from './commands/updateSystems';
+import {AppDataSource} from './lib/data-source';
 
 const run = async () => {
-  const connection = await createConnection();
+  await AppDataSource.initialize();
 
   if (process.argv.length < 3) {
     console.log('Not enough parameters');
@@ -19,21 +19,21 @@ const run = async () => {
 
   if (command === "updateSpawns") {
     const influenceLogs = args.indexOf('--influenceLogs') !== -1;
-    await updateSpawns(connection, influenceLogs);
+    await updateSpawns(influenceLogs);
   } else if (command === "updateSovereignty") {
-    await updateSovereignty(connection);
+    await updateSovereignty();
   } else if (command === "updateRats") {
-    await updateRats(connection);
+    await updateRats();
   } else if (command === "calculateHSSpawn") {
     await calculateHSSpawn();
   } else if (command === "updateSystems") {
-    await updateSystems(connection);
+    await updateSystems();
   } else {
     console.log(`${command} not found`);
   }
 
   redis.disconnect();
-  await connection.close();
+  await AppDataSource.destroy();
 };
 
 run().catch(e => console.log(e));

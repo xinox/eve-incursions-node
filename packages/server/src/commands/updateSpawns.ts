@@ -20,10 +20,53 @@ interface APISpawns {
 
 }
 
-const handleSpawnChange = (spawn: Spawn) => {
-  redis.publish('spawn.change', JSON.stringify({
-    spawnId: spawn.id
-  })).then();
+export interface SpawnChangeEvent {
+  spawns: {
+    id: number;
+    securityArea: System["securityArea"];
+    security: number;
+    state: string;
+    stagingSystemName: string;
+    sovereigntyHolderId: number;
+    regionName: string;
+    constellationName: string;
+    updatedAt: string;
+  }[],
+  influenceLogs: boolean
+}
+
+const handleSpawnChange = async (spawnIds: number[], influenceLogs: boolean) => {
+  if (spawnIds.length === 0 && !influenceLogs) return;
+
+  const spawns = await Spawn.find({where: {id: In(spawnIds)}});
+
+  const eventSpawns: SpawnChangeEvent["spawns"] = [];
+  for await (const spawn of spawns) {
+    const stagingSystem = await spawn.stagingSystem;
+    const constellation = await stagingSystem?.constellation;
+    const region = await constellation?.region;
+
+    if (!stagingSystem || !constellation || !region) continue;
+
+    eventSpawns.push({
+      id: spawn.id,
+      security: stagingSystem.security,
+      securityArea: stagingSystem.securityArea,
+      constellationName: constellation.name,
+      regionName: region.name,
+      sovereigntyHolderId: stagingSystem.sovereigntyHolderID,
+      stagingSystemName: stagingSystem.name,
+      state: spawn.state,
+      updatedAt: spawn.updatedAt.toISOString()
+    })
+  }
+
+  const event: SpawnChangeEvent = {
+    spawns: eventSpawns,
+    influenceLogs
+  }
+
+  redis.publish('spawn.change', JSON.stringify(event)).then();
 };
 
 export const updateSpawns = async (doInfluenceLogs = false) => {
@@ -33,6 +76,7 @@ export const updateSpawns = async (doInfluenceLogs = false) => {
     }
   });
   const spawns: APISpawns[] = await res.json();
+  const changedSpawnIds: number[] = [];
 
   let changed = false;
 
@@ -85,7 +129,7 @@ export const updateSpawns = async (doInfluenceLogs = false) => {
         spawnLog.state = capitalize(spawn.state);
         await manager.save(spawnLog);
         changed = true;
-        handleSpawnChange(dbSpawn);
+        changedSpawnIds.push(dbSpawn.id);
       }
 
       if (doInfluenceLogs) {
@@ -107,7 +151,7 @@ export const updateSpawns = async (doInfluenceLogs = false) => {
       endedSpawn.endedAt = new Date();
       await manager.save(endedSpawn);
 
-      handleSpawnChange(endedSpawn);
+      changedSpawnIds.push(endedSpawn.id);
 
       const endedSpawnLog = new SpawnLog();
       endedSpawnLog.state = 'Ended';
@@ -118,5 +162,6 @@ export const updateSpawns = async (doInfluenceLogs = false) => {
 
   });
 
+  await handleSpawnChange(changedSpawnIds, doInfluenceLogs)
   if (changed) await redis.del('spawns');
 };

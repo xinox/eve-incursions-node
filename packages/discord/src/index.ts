@@ -1,34 +1,31 @@
 import {AppDataSource} from './data-source';
-import {AppDataSource as IncursionDataSource} from '../../server/src/lib/data-source';
-import {Spawn} from '../../server/src/models/Spawn';
 import {Client, Intents, MessageEmbed, TextChannel} from 'discord.js';
 import {ApplicationCommandOptionTypes} from 'discord.js/typings/enums';
 import {Channel} from './entity/Channel';
+import type {SpawnChangeEvent} from '../../server/src/commands/updateSpawns';
 import Redis from 'ioredis';
 import waitPort = require('wait-port');
 
-const client = new Client({
+const discord = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
 });
-
 
 const redis = new Redis({host: 'redis'});
 
 (async () => {
   await waitPort({host: process.env.MYSQL_HOST, port: 3306});
   await AppDataSource.initialize();
-  await IncursionDataSource.initialize();
-  await client.login(process.env.DISCORD_TOKEN);
+  await discord.login(process.env.DISCORD_TOKEN);
 
   await redis.subscribe('spawn.change');
 
 })();
 
-client.on('ready', () => {
+discord.on('ready', () => {
   console.log('ready');
   const guildId = '875844114904662086';
-  const guild = client.guilds.cache.get(guildId);
-  const commands = guild?.commands ?? client.application?.commands;
+  const guild = discord.guilds.cache.get(guildId);
+  const commands = guild?.commands ?? discord.application?.commands;
   if (!commands) return;
 
   commands.create({
@@ -69,7 +66,7 @@ client.on('ready', () => {
   });
 });
 
-client.on('interactionCreate', async (interaction) => {
+discord.on('interactionCreate', async (interaction) => {
   if (!interaction.isCommand()) return;
 
   const {commandName, options} = interaction;
@@ -128,31 +125,31 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 redis.on('message', async (channel, message) => {
-  const {spawnId} = JSON.parse(message);
-  const spawn = await Spawn.findOneById(spawnId);
+  const {spawns} = JSON.parse(message) as SpawnChangeEvent;
 
-  if (!spawn) return;
-
-  const stagingSystem = await spawn?.stagingSystem;
-  const area = stagingSystem.securityArea;
-  const channelEntities = await Channel.find({
-    where: {
-      [area]: true,
-      startOnly: spawn.state === "Established" ? undefined : false
-    }
-  });
-  const embed = await createMessage(spawn);
-
-  for await (const channelEntity of channelEntities) {
-    const guild = client.guilds.cache.get(channelEntity.guildId);
-    const channel = guild?.channels.cache.get(channelEntity.channelId) as TextChannel;
-
-    if (!guild || !channel || !channel.isText()) continue;
-
-    await channel.send({
-      embeds: [embed]
+  for (const spawn of spawns) {
+    const area = spawn.securityArea;
+    const channelEntities = await Channel.find({
+      where: {
+        [area]: true,
+        startOnly: spawn.state === "Established" ? undefined : false
+      }
     });
+    const embed = await createMessage(spawn);
+
+    for await (const channelEntity of channelEntities) {
+      const guild = discord.guilds.cache.get(channelEntity.guildId);
+      const channel = guild?.channels.cache.get(channelEntity.channelId) as TextChannel;
+
+      if (!guild || !channel || !channel.isText()) continue;
+
+      await channel.send({
+        embeds: [embed]
+      });
+    }
   }
+
+
 
 });
 
@@ -175,17 +172,14 @@ const stateMap = {
   }
 } as const;
 
-const createMessage = async (spawn: Spawn) => {
-  const stagingSystem = await spawn?.stagingSystem;
-  const constellation = await stagingSystem?.constellation;
-  const region = await constellation?.region;
-  const state = stateMap[spawn.state?.toLocaleLowerCase() as keyof typeof stateMap];
+const createMessage = async (spawn: SpawnChangeEvent["spawns"][0]) => {
+  const state = stateMap[spawn.state.toLocaleLowerCase() as keyof typeof stateMap];
 
   return new MessageEmbed({
     color: state.color,
-    title: `Incursion in **${stagingSystem?.name}** ${state.phrase}`,
+    title: `Incursion in **${spawn.constellationName}** ${state.phrase}`,
     thumbnail: {
-      url: `https://images.evetech.net/${stagingSystem.sovereigntyHolderID < 600000 ? 'corporations' : 'alliances'}/${stagingSystem.sovereigntyHolderID}/logo?size=64`
+      url: `https://images.evetech.net/${spawn.sovereigntyHolderId < 600000 ? 'corporations' : 'alliances'}/${spawn.sovereigntyHolderId}/logo?size=64`
     },
     fields: [
       {
@@ -194,17 +188,17 @@ const createMessage = async (spawn: Spawn) => {
       },
       {
         name: 'Region',
-        value: region.name,
+        value: spawn.regionName,
         inline: true
       },
       {
         name: 'Stag. System',
-        value: stagingSystem.name,
+        value: spawn.stagingSystemName,
         inline: true
       },
       {
         name: 'Sec. Status',
-        value: `${stagingSystem.securityArea === 'high' ? '🟩' : stagingSystem.securityArea === 'low' ? '🟧' : '🟥'} ${stagingSystem.security}`,
+        value: `${spawn.securityArea ? '🟩' : spawn.securityArea === 'low' ? '🟧' : '🟥'} ${spawn.security}`,
         inline: true
       }
     ],

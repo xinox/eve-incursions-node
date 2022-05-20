@@ -1,10 +1,10 @@
 import {AppDataSource} from './data-source';
+import Redis from 'ioredis';
 import {Client, Intents, MessageEmbed, TextChannel} from 'discord.js';
 import {ApplicationCommandOptionTypes} from 'discord.js/typings/enums';
 import {Channel} from './entity/Channel';
 import type {SpawnChangeEvent} from '../../server/src/commands/updateSpawns';
-import Redis from 'ioredis';
-import waitPort = require('wait-port');
+import waitPort from 'wait-port';
 
 const discord = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
@@ -148,9 +148,6 @@ redis.on('message', async (channel, message) => {
       });
     }
   }
-
-
-
 });
 
 const stateMap = {

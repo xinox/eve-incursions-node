@@ -1,5 +1,5 @@
 {
-  "name": "eve-incursions-node",
+  "name": "server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -22,7 +22,8 @@
     "apollo-server": "^3.7.0",
     "concurrently": "^7.2.0",
     "graphql": "^15.3.0",
-    "ioredis": "^5.0.5",
+    "@types/ioredis": "^4.28.10",
+    "ioredis": "^4.28.5",
     "mysql": "^2.18.1",
     "node-fetch": "^2.6.7",
     "node-schedule": "^2.1.0",
@@ -33,7 +34,6 @@
     "wait-port": "^0.2.9"
   },
   "devDependencies": {
-    "@types/ioredis": "^4.28.10",
     "@types/node-schedule": "^2.1.0",
     "nodemon": "^2.0.16",
     "ts-node": "^10.7.0",

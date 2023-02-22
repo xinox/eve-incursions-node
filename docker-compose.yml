@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   server:
-    image: node:16-alpine
+    image: node:18-alpine
     working_dir: /eve-incursions/packages/server
     restart: unless-stopped
     networks:
@@ -17,7 +17,7 @@ services:
       - MYSQL_DB
 
   ws:
-    image: node:16-alpine
+    image: node:18-alpine
     working_dir: /eve-incursions/packages/ws
     restart: unless-stopped
     networks:
@@ -27,7 +27,7 @@ services:
       - ./:/eve-incursions
 
   frontend:
-    image: node:16-alpine
+    image: node:18-alpine
     working_dir: /eve-incursions/packages/frontend
     restart: unless-stopped
     networks:
@@ -37,7 +37,7 @@ services:
       - ./:/eve-incursions
 
   discord:
-    image: node:16-alpine
+    image: node:18-alpine
     working_dir: /eve-incursions/packages/discord
     restart: unless-stopped
     networks:
@@ -66,8 +66,8 @@ services:
     - 3313:3306
 
   redis:
-    restart: unless-stopped
     image: library/redis:6
+    restart: unless-stopped
     networks:
       - internal
 

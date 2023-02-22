@@ -1,10 +1,10 @@
 import React from 'react';
 import {ActiveSpawnsQuery} from '../../lib/graphql';
 import {Systems} from './systems';
-import {Chart} from './chart';
 import TimeAgo from 'react-timeago';
 import Countdown from 'react-countdown';
 import {dotlanTransform} from '../../lib/utils';
+import {Chart} from './chart';
 
 export const Spawn = ({spawn}: { spawn: ActiveSpawnsQuery['activeSpawns'][0] }) => {
   let lifetime = 24 * 60 * 60 * 1000;
@@ -63,11 +63,12 @@ export const Spawn = ({spawn}: { spawn: ActiveSpawnsQuery['activeSpawns'][0] }) 
 
               <>
                 <dt className="col-sm-6" title={'This is the maximum possible time the incursion will stay active'}>Max. remaining</dt>
-                <dd className="col-sm-6">
-                  <Countdown intervalDelay={spawn.state === 'Established' ? 100000 : 1000} daysInHours={true} renderer={({
-                                                                                                                           days: rawDays,
-                                                                                                                           formatted: {minutes, hours, seconds}
-                                                                                                                         }) => spawn.state === 'Established' ? `up to ${rawDays} days` : `${hours}:${minutes}:${seconds}`}
+                <dd className="col-sm-6" suppressHydrationWarning={true}>
+                  <Countdown intervalDelay={spawn.state === 'Established' ? 100000 : 1000} daysInHours={true}
+                             renderer={({
+                                          days: rawDays,
+                                          formatted: {minutes, hours, seconds}
+                                        }) => spawn.state === 'Established' ? `up to ${rawDays} days` : `${hours}:${minutes}:${seconds}`}
                              date={maxLifetimeDate}/>
                 </dd>
               </>

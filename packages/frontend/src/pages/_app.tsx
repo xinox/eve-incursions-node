@@ -31,19 +31,19 @@ function MyApp({Component, pageProps}: AppProps) {
             <Navbar.Collapse id="responsive-navbar-nav">
               <ul className="navbar-nav mr-auto">
                 <li className="nav-item">
-                  <Link href="/"><a className="nav-link">Status</a></Link>
+                  <Link href="/" className="nav-link">Status</Link>
                 </li>
                 <li className="nav-item">
-                  <Link href="/history"><a className="nav-link">History</a></Link>
+                  <Link href="/history" className="nav-link">History</Link>
                 </li>
                 <li className="nav-item">
-                  <Link href="/communities"><a className="nav-link">Communities</a></Link>
+                  <Link href="/communities" className="nav-link">Communities</Link>
                 </li>
                 <li className="nav-item">
-                  <Link href="/rats"><a className="nav-link">Rats</a></Link>
+                  <Link href="/rats" className="nav-link">Rats</Link>
                 </li>
                 <li className="nav-item">
-                  <Link href="/about"><a className="nav-link">About</a></Link>
+                  <Link href="/about" className="nav-link">About</Link>
                 </li>
               </ul>
               <ThemeToggle/>

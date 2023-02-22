@@ -1,7 +1,9 @@
-import React, {MouseEventHandler, useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 import {ActiveSpawnsQuery} from '../../lib/graphql';
 import { Line } from 'react-chartjs-2';
+import {Chart as ChartJS, Tooltip, LinearScale, LineElement, LineController, PointElement, CategoryScale, Filler, ChartOptions} from 'chart.js';
 
+ChartJS.register(Tooltip, LineController, LineElement, PointElement, LinearScale, Tooltip, CategoryScale, Filler);
 export const Chart = ({influenceLogArray}: { influenceLogArray: ActiveSpawnsQuery['activeSpawns'][0]['influenceLogArray'] }) => {
   const data = useMemo(() => ({
     labels: ["-72h", "", "", "", "", "", "", "", "", "", "", "", "-60h", "", "", "", "", "", "", "", "", "", "", "", "-48h", "", "", "", "", "", "", "", "", "", "", "", "-36h", "", "", "", "", "", "", "", "", "", "", "", "-24h", "", "", "", "", "", "", "", "", "", "", "", "-12h", "", "", "", "", "", "", "", "", "", "", "now"],
@@ -17,25 +19,23 @@ export const Chart = ({influenceLogArray}: { influenceLogArray: ActiveSpawnsQuer
     ]
   }), [influenceLogArray]);
 
-  let options = useMemo(() => ({
+  let options = useMemo<ChartOptions<'line'>>(() => ({
     legend: {
       display: false
     },
     scales: {
-      yAxes: [{
-        ticks: {
-          max: 100,
-          min: 0,
-        },
-        gridLines: {
+      y: {
+        min: 0,
+        max: 100,
+        grid: {
           display: false
         }
-      }],
-      xAxes: [{
-        gridLines: {
+      },
+      x: {
+        grid: {
           display: false
         }
-      }]
+      }
     },
     elements: {
       line: {
@@ -50,6 +50,6 @@ export const Chart = ({influenceLogArray}: { influenceLogArray: ActiveSpawnsQuer
   }), []);
 
   return (
-    <Line data={data} options={options}/>
+    <Line data={data} options={options as any}/>
   );
 };

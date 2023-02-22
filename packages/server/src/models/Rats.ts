@@ -103,7 +103,7 @@ export class Rat {
   @Field(() => DamageTypes)
   structureResistances: DamageTypes;
 
-  @Field({defaultValue: 0})
+  @Field({nullable: true})
   attackRange: number;
 
   @Field()

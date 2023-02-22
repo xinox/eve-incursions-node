@@ -17,7 +17,7 @@ interface HistoryProps {
   total: SpawnLogsQuery['spawnLogs']['total'];
 }
 
-export default function Home({spawnLogs, total}: HistoryProps) {
+export default function Home({spawnLogs}: HistoryProps) {
 
   let previousDate: string = '';
   return (
@@ -53,7 +53,7 @@ export default function Home({spawnLogs, total}: HistoryProps) {
           <Fragment key={dateString + logEntry.state + logEntry.spawn.stagingSystem.name}>
             {dateNode}
             <tr>
-              <td>{date.toLocaleTimeString('de-DE', {timeStyle: 'short'})}</td>
+              <td suppressHydrationWarning={true}>{date.toLocaleTimeString('de-DE', {timeStyle: 'short'})}</td>
               <td><a
                 href={`http://evemaps.dotlan.net/map/${dotlanTransform(logEntry.spawn.constellation.region.name)}/${dotlanTransform(logEntry.spawn.constellation.name)}#radius`}
                 target="_blank" rel="noopener">{logEntry.spawn.constellation.name}</a></td>

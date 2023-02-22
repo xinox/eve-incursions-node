@@ -4,6 +4,8 @@ import {ActiveSpawnsQuery, getSdk} from '../lib/graphql';
 import {Spawn} from '../components/spawn/spawn';
 import {LastHsSpawn} from '../components/spawn/lastHsSpawn';
 import {redis} from '../lib/redis';
+import {useRouter} from 'next/router';
+import useWebSocket from 'react-use-websocket';
 
 export const getServerSideProps = async () => {
   const cache = await redis.get('spawns');
@@ -22,6 +24,14 @@ export const getServerSideProps = async () => {
 
 
 export default function Home({activeSpawns, lastHighSecSpawn: {date}}: ActiveSpawnsQuery) {
+  const router = useRouter();
+  const {} = useWebSocket(`wss://${window?.location.host}/ws`, {
+    onMessage: (e) => {
+      console.log(e.data)
+      router.replace(router.asPath);
+    }
+  });
+
   return (
     <>
       <LastHsSpawn date={date} />

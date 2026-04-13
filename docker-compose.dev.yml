@@ -1,8 +1,17 @@
-version: "3.7"
 
 services:
+  init:
+    image: node:22-alpine
+    working_dir: /eve-incursions
+    volumes:
+      - ./:/eve-incursions
+    command: npm i
+
   server:
-    command: sh -c "npm i && npm start"
+    command: sh -c "npm start"
+    depends_on:
+      init:
+        condition: service_completed_successfully
     ports:
     - 4001:4001
     labels:
@@ -12,7 +21,10 @@ services:
       caddy.header: '@cachedFiles Cache-Control "public, max-age=604800, must-revalidate"'
 
   ws:
-    command: sh -c "npm i && npm start"
+    command: sh -c "npm start"
+    depends_on:
+      init:
+        condition: service_completed_successfully
     ports:
       - 4003:4003
     labels:
@@ -20,7 +32,10 @@ services:
       caddy.reverse_proxy: /ws {{upstreams 4003}}
 
   frontend:
-    command: sh -c "npm i && npm run dev"
+    command: sh -c "npm run dev"
+    depends_on:
+      init:
+        condition: service_completed_successfully
     ports:
     - 4002:3000
     labels:
@@ -28,5 +43,3 @@ services:
       caddy.reverse_proxy: /* {{upstreams 3000}}
       caddy.@cachedFiles.path: "*.jpg *.jpeg *.png *.gif *.ico *.svg"
       caddy.header: '@cachedFiles Cache-Control "public, max-age=604800, must-revalidate"'
-
-

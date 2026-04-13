@@ -19,6 +19,9 @@ export class InfluenceLogEntry extends BaseEntity {
   @Column()
   date: Date;
 
+  @Column({name: 'spawn_id'})
+  spawnId: number;
+
   @Field(() => Spawn)
   @ManyToOne(() => Spawn, spawn => spawn.influenceLogs)
   @JoinColumn({name: 'spawn_id'})

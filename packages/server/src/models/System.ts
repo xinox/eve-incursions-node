@@ -43,7 +43,7 @@ export class System extends BaseEntity {
   @Column({
     name: 'systemSize',
     transformer: {
-      from: value => (parseInt(value) + 17) * 2,
+      from: value => value != null && !isNaN(parseInt(value)) ? (parseInt(value) + 17) * 2 : 0,
       to: value => value
     }
   })

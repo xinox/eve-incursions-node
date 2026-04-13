@@ -1,8 +1,7 @@
-version: "3.7"
 
 services:
   server:
-    image: node:18-alpine
+    image: node:22-alpine
     working_dir: /eve-incursions/packages/server
     restart: unless-stopped
     networks:
@@ -17,7 +16,7 @@ services:
       - MYSQL_DB
 
   ws:
-    image: node:18-alpine
+    image: node:22-alpine
     working_dir: /eve-incursions/packages/ws
     restart: unless-stopped
     networks:
@@ -27,7 +26,7 @@ services:
       - ./:/eve-incursions
 
   frontend:
-    image: node:18-alpine
+    image: node:22-alpine
     working_dir: /eve-incursions/packages/frontend
     restart: unless-stopped
     networks:
@@ -36,23 +35,8 @@ services:
     volumes:
       - ./:/eve-incursions
 
-  discord:
-    image: node:18-alpine
-    working_dir: /eve-incursions/packages/discord
-    restart: unless-stopped
-    networks:
-      - internal
-    environment:
-      - MYSQL_HOST
-      - MYSQL_USER
-      - MYSQL_PASSWORD
-      - MYSQL_DB
-      - DISCORD_TOKEN
-    volumes:
-      - ./:/eve-incursions
-
   mysql:
-    image: mysql:5.7
+    image: mariadb:10.11
     restart: unless-stopped
     volumes:
       - eve-incursions-mysql-data:/var/lib/mysql
@@ -66,7 +50,7 @@ services:
     - 3313:3306
 
   redis:
-    image: library/redis:6
+    image: redis:7-alpine
     restart: unless-stopped
     networks:
       - internal

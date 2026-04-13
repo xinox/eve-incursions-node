@@ -124,7 +124,7 @@ export const updateSpawns = async (doInfluenceLogs = false) => {
 
       if (oldState.toLocaleLowerCase() !== spawn.state.toLocaleLowerCase()) {
         const spawnLog = new SpawnLog();
-        spawnLog.spawn = dbSpawn as any;
+        spawnLog.spawnId = dbSpawn.id;
         spawnLog.date = new Date();
         spawnLog.state = capitalize(spawn.state);
         await manager.save(spawnLog);
@@ -135,7 +135,7 @@ export const updateSpawns = async (doInfluenceLogs = false) => {
       if (doInfluenceLogs) {
         const influenceLog = new InfluenceLogEntry();
         influenceLog.influence = spawn.influence;
-        influenceLog.spawn = dbSpawn as any;
+        influenceLog.spawnId = dbSpawn.id;
         influenceLog.date = new Date();
         await manager.save(influenceLog);
         changed = true;
@@ -156,7 +156,7 @@ export const updateSpawns = async (doInfluenceLogs = false) => {
       const endedSpawnLog = new SpawnLog();
       endedSpawnLog.state = 'Ended';
       endedSpawnLog.date = new Date();
-      endedSpawnLog.spawn = endedSpawn as any;
+      endedSpawnLog.spawnId = endedSpawn.id;
       await manager.save(endedSpawnLog);
     }
 

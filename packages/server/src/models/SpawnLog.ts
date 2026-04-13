@@ -19,6 +19,9 @@ export class SpawnLog extends BaseEntity {
   @Column()
   date: Date;
 
+  @Column({name: 'spawn_id'})
+  spawnId: number;
+
   @Field(() => Spawn)
   @ManyToOne(() => Spawn, c => c.logs)
   @JoinColumn({name: 'spawn_id'})

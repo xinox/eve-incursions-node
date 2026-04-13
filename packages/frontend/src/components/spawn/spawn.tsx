@@ -1,4 +1,3 @@
-import React from 'react';
 import {ActiveSpawnsQuery} from '../../lib/graphql';
 import {Systems} from './systems';
 import TimeAgo from 'react-timeago';

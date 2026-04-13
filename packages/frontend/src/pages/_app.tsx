@@ -1,6 +1,6 @@
 import '../styles/globals.scss';
 import {AppProps} from 'next/app';
-import React, {useEffect} from 'react';
+import {useEffect} from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
 import {ThemeToggle} from '../components/theme-toggle/theme-toggle';

@@ -1,4 +1,4 @@
-import React, {Fragment, ReactNode} from 'react';
+import {Fragment, ReactNode} from 'react';
 import {ActiveSpawnsQuery} from '../../lib/graphql';
 import {System} from './system';
 

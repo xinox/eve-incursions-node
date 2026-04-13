@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import {useMemo} from 'react';
 import {ActiveSpawnsQuery} from '../../lib/graphql';
 import { Line } from 'react-chartjs-2';
 import {Chart as ChartJS, Tooltip, LinearScale, LineElement, LineController, PointElement, CategoryScale, Filler, ChartOptions} from 'chart.js';

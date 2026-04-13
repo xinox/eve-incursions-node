@@ -1,4 +1,3 @@
-import React from 'react';
 import {Rat} from '../../lib/graphql';
 import {DamageTypes, DamageTypesRow} from './DamageTypesRow';
 

@@ -1,4 +1,4 @@
-import React, {ReactNode, useState} from 'react';
+import {ReactNode, useState} from 'react';
 import Countdown from 'react-countdown';
 
 export const LastHsSpawn = ({date: dateString} :{date: string | null}) => {

@@ -1,4 +1,4 @@
-import React, {Fragment, ReactNode} from 'react';
+import {Fragment, ReactNode} from 'react';
 import {GraphQLClient} from 'graphql-request';
 import {getSdk, SpawnLogsQuery} from '../lib/graphql';
 import {GetServerSideProps} from 'next';

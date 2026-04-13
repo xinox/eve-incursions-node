@@ -1,4 +1,3 @@
-import React from 'react';
 import {GraphQLClient} from 'graphql-request';
 import {getSdk, RatGroupsQuery} from '../lib/graphql';
 import {Rat} from '../components/rats/Rat';

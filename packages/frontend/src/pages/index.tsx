@@ -1,4 +1,3 @@
-import React from 'react';
 import {GraphQLClient} from 'graphql-request';
 import {ActiveSpawnsQuery, getSdk} from '../lib/graphql';
 import {Spawn} from '../components/spawn/spawn';

@@ -1,5 +1,4 @@
 import {ActiveSpawnsQuery, RatGroupsQuery} from '../../lib/graphql';
-import React from 'react';
 
 export const Ewar = ({ewar}: { ewar: RatGroupsQuery['ratGroups'][0]['rats'][0]['ewar'] }) => {
   if (ewar.length === 0) return null;

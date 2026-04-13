@@ -1,4 +1,3 @@
-import React from 'react';
 import {RatGroupsQuery} from '../../lib/graphql';
 import {Ewar} from './Ewar';
 import {Attack} from './Attack';

@@ -1,4 +1,3 @@
-import React from 'react';
 import {GraphQLClient} from 'graphql-request';
 import {ActiveCommunitiesQuery, getSdk} from '../lib/graphql';
 

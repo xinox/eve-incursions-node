@@ -1,4 +1,3 @@
-import React from 'react';
 import {DamageTypes as DamageTypesI} from '../../lib/graphql';
 import {DamageTypeCol} from './DamageTypeCol';
 

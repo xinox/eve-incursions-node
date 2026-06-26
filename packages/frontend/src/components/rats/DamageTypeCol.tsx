@@ -1,4 +1,4 @@
-import {classNames} from '../../lib/utils';
+import styles from './rats.module.css';
 
 interface DamageTypeProps {
   type: 'em' | 'kinetic' | 'explosive' | 'thermal';
@@ -8,11 +8,12 @@ interface DamageTypeProps {
 
 export const DamageTypeCol = ({type, label, percentage}: DamageTypeProps) => {
   return (
-    <div className={classNames("col-3", "resi-bar", type)} title={type}><img src={`/images/${type}.png`} alt={type} className="resi-icon"/>
-      <div className="resi-background">
-        <div className="resi-text">{label}</div>
-        <div className="resi-inner" style={{width: (percentage * 100) + '%'}}/>
+    <div className={styles.barCol} data-type={type} title={type}>
+      <img className={styles.resiIcon} src={`/images/${type}.png`} alt={type}/>
+      <div className={styles.bar}>
+        <div className={styles.fill} style={{width: Math.min(100, percentage * 100) + '%'}}/>
+        <div className={styles.barText}>{label}</div>
       </div>
     </div>
   );
-}
+};

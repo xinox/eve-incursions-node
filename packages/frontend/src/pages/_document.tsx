@@ -6,7 +6,7 @@ export default function MyDocument() {
       <Head>
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="Description" content="Get the current all the current and past incursion spawns for EVE Online. With useful information you can't get anywhere else." />
-        <meta name="theme-color" content="#212529"/>
+        <meta name="theme-color" content="#0f1115"/>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </Head>
       <body>
@@ -14,8 +14,7 @@ export default function MyDocument() {
         (() => {
           const setTheme = (newTheme) => {
             window.__theme = newTheme;
-            preferredTheme = newTheme;
-            document.body.className = newTheme;
+            document.documentElement.setAttribute('data-theme', newTheme);
           }
           let preferredTheme;
           try {
@@ -28,8 +27,10 @@ export default function MyDocument() {
             } catch (err) {}
           }
           var darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
-          darkQuery.addListener(function(e) {
-            window.__setPreferredTheme(e.matches ? 'dark' : 'light')
+          darkQuery.addEventListener('change', function(e) {
+            if (!localStorage.getItem('theme')) {
+              setTheme(e.matches ? 'dark' : 'light');
+            }
           });
           setTheme(preferredTheme || (darkQuery.matches ? 'dark' : 'light'));
         })();

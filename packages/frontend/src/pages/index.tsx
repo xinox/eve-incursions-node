@@ -5,6 +5,7 @@ import {LastHsSpawn} from '../components/spawn/lastHsSpawn';
 import {redis} from '../lib/redis';
 import {useRouter} from 'next/router';
 import useWebSocket from 'react-use-websocket';
+import styles from '../styles/home.module.css';
 
 export const getServerSideProps = async () => {
   const cache = await redis.get('spawns');
@@ -34,8 +35,8 @@ export default function Home({activeSpawns, lastHighSecSpawn: {date}}: ActiveSpa
   return (
     <>
       <LastHsSpawn date={date} />
-      <div className={'active-spawns'}>{
-        activeSpawns.sort((s1, s2) => s2.stagingSystem.security - s1.stagingSystem.security).map((spawn) => {
+      <div className={styles.grid}>{
+        [...activeSpawns].sort((s1, s2) => s2.stagingSystem.security - s1.stagingSystem.security).map((spawn) => {
           return (<Spawn key={spawn.id} spawn={spawn}/>);
         })
       }</div>

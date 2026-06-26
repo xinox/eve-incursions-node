@@ -1,5 +1,6 @@
 import {Rat} from '../../lib/graphql';
 import {DamageTypes, DamageTypesRow} from './DamageTypesRow';
+import styles from './rats.module.css';
 
 type AttackProps = Pick<Rat, 'attackAlpha' | 'attackType' | 'attackTypeId' | 'attackTypes' | 'attackDuration'>
 
@@ -8,26 +9,24 @@ export const Attack = ({attackTypes, attackAlpha, attackType, attackTypeId, atta
   const dps = attackAlpha / attackDuration;
   const dpsAttackTypes = Object.fromEntries(Object.entries(attackTypes as DamageTypes).map(([k, v]) => [k, v / attackDuration]));
 
-
   return (
-    <>
-      <div className="row">
-        <div className="col-1" style={{fontWeight: 'bold'}}>Alpha</div>
-        <div className="col-3"><span title="Alpha"><img src={`https://images.evetech.net/types/${attackTypeId}/icon?size=32`} alt={attackType} className="small-icon"/> {attackAlpha.toLocaleString()}</span>
-        </div>
-        <div className="col-8">
-          <DamageTypesRow damageTypes={attackTypes} total={attackAlpha}/>
-        </div>
+    <div className={styles.statSection}>
+      <div className={styles.statRow}>
+        <span className={styles.statLabel}>Alpha</span>
+        <span className={styles.statValue} title="Alpha">
+          <img src={`https://images.evetech.net/types/${attackTypeId}/icon?size=32`} alt={attackType} className={styles.icon}/>
+          {attackAlpha.toLocaleString()}
+        </span>
+        <DamageTypesRow damageTypes={attackTypes} total={attackAlpha}/>
       </div>
-      <div className="row">
-        <div className="col-1" style={{fontWeight: 'bold'}}>DPS</div>
-        <div className="col-3"><span title="DPS"><img src={`https://images.evetech.net/types/${attackTypeId}/icon?size=32`} alt={attackType} className="small-icon"/> {dps.toLocaleString([], {maximumFractionDigits: 1})}</span>
-        </div>
-        <div className="col-8">
-          <DamageTypesRow damageTypes={dpsAttackTypes as DamageTypes} total={dps}/>
-        </div>
+      <div className={styles.statRow}>
+        <span className={styles.statLabel}>DPS</span>
+        <span className={styles.statValue} title="DPS">
+          <img src={`https://images.evetech.net/types/${attackTypeId}/icon?size=32`} alt={attackType} className={styles.icon}/>
+          {dps.toLocaleString([], {maximumFractionDigits: 1})}
+        </span>
+        <DamageTypesRow damageTypes={dpsAttackTypes as DamageTypes} total={dps}/>
       </div>
-      <br/><br/>
-    </>
+    </div>
   );
 };

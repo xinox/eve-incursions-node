@@ -1,6 +1,7 @@
 import {GraphQLClient} from 'graphql-request';
 import {getSdk, RatGroupsQuery} from '../lib/graphql';
 import {Rat} from '../components/rats/Rat';
+import styles from '../components/rats/rats.module.css';
 
 export const getStaticProps = async () => {
   const client = new GraphQLClient('http://server:4001');
@@ -16,12 +17,12 @@ export default function Rats({ratGroups}: RatGroupsQuery) {
     <>
       <h1>Sansha Rats</h1>
       {ratGroups.map(({name, rats}) => {
-        rats.sort((r1, r2) => r1.name.localeCompare(r2.name));
+        const sorted = [...rats].sort((r1, r2) => r1.name.localeCompare(r2.name));
         return (
-          <div key={name}>
-            <h2>{name}</h2>
-            {rats.map(rat => <Rat key={rat.name} rat={rat}/>)}
-          </div>
+          <section key={name}>
+            <h2 className={styles.groupTitle}>{name}</h2>
+            {sorted.map(rat => <Rat key={rat.name} rat={rat}/>)}
+          </section>
         );
       })}
     </>

@@ -29,6 +29,17 @@
   color: var(--text);
 }
 
+.link {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.link:hover {
+  color: var(--accent-strong);
+}
+
 .salute {
   font-weight: 700;
   color: var(--accent);

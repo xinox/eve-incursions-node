@@ -4,8 +4,11 @@ Tracker for [EVE Online](https://www.eveonline.com/) incursions — live spawn s
 influence history, spawn history, community list and Sansha rat stats. Data is pulled
 from CCP's [ESI API](https://esi.evetech.net/).
 
-> **Status: sunsetting.** This project is being retired and is no longer actively
-> maintained.
+> **Status: retired.** This project is being sunset and is no longer maintained.
+> It is published as-is for anyone who wants to read, fork, or self-host it. I will
+> **not** be providing any support, fixes, reviews, or help with setup, and I will not
+> be responding to issues or pull requests. You are entirely on your own — please do
+> not contact me for assistance. See the [LICENSE](LICENSE) for the (lack of) warranty.
 
 ## Architecture
 

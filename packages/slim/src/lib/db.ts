@@ -213,7 +213,7 @@ const getRespawnWindows = async (source: DataSource, activeSpawns: Spawn[]): Pro
     join solar_systems system on system.constellationID = spawn.constellationId
     join mapconstellations constellation on constellation.constellationID = spawn.constellationId
     join mapregions region on region.regionID = constellation.regionID
-    where spawn.active = 0
+    where spawn.active = false
       and system.systemType = 'Staging'
       and spawn.ended_at is not null
     order by spawn.ended_at desc
@@ -323,7 +323,7 @@ export const getActiveSpawns = async (): Promise<ActiveSpawnsQuery> => {
   const activeRows = await queryRows(source, `
     select *
     from spawns
-    where active = 1
+    where active = true
     order by established_at desc
   `);
 
@@ -335,7 +335,7 @@ export const getActiveSpawns = async (): Promise<ActiveSpawnsQuery> => {
     select spawn.ended_at
     from spawns spawn
     join solar_systems system on system.constellationID = spawn.constellationId
-    where spawn.active = 0
+    where spawn.active = false
       and system.systemType = 'Staging'
       and round(system.security, 1) >= 0.5
       and spawn.ended_at is not null
@@ -418,7 +418,7 @@ export const getActiveCommunities = async (): Promise<ActiveCommunitiesQuery> =>
   const rows = await queryRows(source, `
     select *
     from communities
-    where active = 1
+    where active = true
     order by communityName
   `);
 

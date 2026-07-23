@@ -4,7 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "slim:dev": "npm --workspace slim run dev",
+    "slim:build": "npm --workspace slim run build",
+    "slim:typecheck": "npm --workspace slim run typecheck",
+    "slim:sync": "npm --workspace slim run sync:all",
+    "slim:scheduler": "npm --workspace slim run scheduler",
+    "slim:rats": "npm --workspace slim run sync:rats"
   },
   "workspaces": [
     "./packages/*"

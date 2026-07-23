@@ -1,15 +1,31 @@
-# EVE Incursions
+﻿# EVE Incursions
 
-Tracker for [EVE Online](https://www.eveonline.com/) incursions — live spawn status,
+Tracker for [EVE Online](https://www.eveonline.com/) incursions ï¿½ live spawn status,
 influence history, spawn history, community list and Sansha rat stats. Data is pulled
 from CCP's [ESI API](https://esi.evetech.net/).
 
 > **Status: retired.** This project is being sunset and is no longer maintained.
 > It is published as-is for anyone who wants to read, fork, or self-host it. I will
 > **not** be providing any support, fixes, reviews, or help with setup, and I will not
-> be responding to issues or pull requests. You are entirely on your own — please do
+> be responding to issues or pull requests. You are entirely on your own ï¿½ please do
 > not contact me for assistance. See the [LICENSE](LICENSE) for the (lack of) warranty.
 
+## Slim Version
+
+A simplified non-Docker version now lives in `packages/slim`. It can run with a local SQLite database or, when `DB_MODE=supabase`, with Supabase/Postgres. It does not require GraphQL, Redis, WebSockets, MariaDB, or Docker.
+
+Quick start:
+
+```bash
+npm install
+npm run slim:sync
+npm run slim:rats
+npm run slim:dev
+```
+
+Then open `http://localhost:4004`.
+
+See `packages/slim/README.md` for production and scheduler notes.
 ## Architecture
 
 A npm-workspaces monorepo with three services, wired together with Docker Compose:
@@ -20,7 +36,7 @@ A npm-workspaces monorepo with three services, wired together with Docker Compos
 | `packages/ws`     | WebSocket server (push live updates)    | `4003`      |
 | `packages/frontend` | Next.js site (SSR)                    | `4002`      |
 
-Backing services: **MariaDB** (`3313` on host) and **Redis** (internal). In production a
+Backing services: **SQLite** (file-backed app DB) and **Redis** (internal). In production a
 [caddy-docker-proxy](https://github.com/lucaslorentz/caddy-docker-proxy) container routes
 everything under one host; locally you can hit the services directly or run caddy too.
 
@@ -34,21 +50,11 @@ everything under one host; locally you can hit the services directly or run cadd
 Create a `.env` in the repo root (it is gitignored):
 
 ```env
-MYSQL_HOST=mysql
-MYSQL_USER=root
-MYSQL_PASSWORD=your-db-password
-MYSQL_DB=eve-incursions
-
-# GCS HMAC credentials for the database-backup container (production only).
-# Used by the `mysql_backup` service via Google's S3-compatible API. Omit for local dev.
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
+DB_FILE=/eve-incursions/tmp/app.db
 ```
 
-`MYSQL_HOST` is the compose service name (`mysql`) when running in Docker. The `AWS_*`
-keys are the HMAC credentials the `mysql_backup` service (see `docker-compose.prod.yml`)
-uses to push dumps to a Google Cloud Storage bucket through its S3-compatible endpoint —
-they are not needed for local development.
+`DB_FILE` points at the SQLite database file used by the server container. The compose
+files default to SQLite, so no separate database service is required anymore.
 
 ## Run it locally
 
@@ -57,36 +63,29 @@ The base `docker-compose.yml` is the production definition; the dev overlay
 and published ports.
 
 ```bash
-# 1. one-time: create the external network the compose files expect
-docker network create caddy
-
-# 2. (optional) start the caddy reverse proxy → serves everything on http://localhost
+# 1. (optional) start the caddy reverse proxy -> serves everything on http://localhost
 cd caddy && docker compose up -d && cd ..
 
-# 3. bring up the dev stack (installs deps, then starts all services)
+# 2. bring up the dev stack (installs deps, starts API/frontend/ws, and runs the scheduler)
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 ```
 
 Then open:
 
-- **http://localhost:4002** — the frontend directly, or
-- **http://localhost** — via caddy (only if you did step 2)
+- **http://localhost:4002** ï¿½ the frontend directly, or
+- **http://localhost** ï¿½ via caddy (only if you started caddy)
 
 > Note: hit port **4002** for the frontend. `http://localhost` only works when the caddy
-> proxy from step 2 is running.
+> proxy is running.
 
 ### Seed the data
 
-A fresh MariaDB starts empty, so the homepage will have nothing to show until it is
-populated. `seed/eve-incursions-seed.sql.gz` is a gzipped MariaDB dump of all 11 tables
-(systems, spawns, communities, rat stats, etc.), taken on 2026-06-26. It contains only
-public EVE/game data — no user data. Pipe it into the running `mysql` container:
+The app database is created automatically on first start. The dev scheduler now performs
+an initial spawn and sovereignty sync on startup, so the homepage should populate shortly
+after the containers are up.
 
-```bash
-gunzip -c seed/eve-incursions-seed.sql.gz | \
-  docker compose -f docker-compose.yml -f docker-compose.dev.yml exec -T mysql \
-  mariadb -uroot -p"$MYSQL_PASSWORD" eve-incursions
-```
+The archived file `seed/eve-incursions-seed.sql.gz` is an old MariaDB dump kept only for
+reference; it is not imported by the SQLite-based setup.
 
 ## Useful commands
 
@@ -95,6 +94,7 @@ DC="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
 
 $DC up                       # start everything (foreground)
 $DC up -d                    # start detached
+$DC logs -f scheduler        # tail initial/import jobs
 $DC logs -f frontend         # tail a service
 $DC exec frontend sh         # shell into a container
 $DC down                     # stop the stack
@@ -119,4 +119,5 @@ staging) define the deployed stack, routed by the external caddy proxy in `caddy
 
 ## Tech stack
 
-Next.js · React · TypeScript · GraphQL · MariaDB · Redis · Docker · Chart.js
+Next.js ï¿½ React ï¿½ TypeScript ï¿½ GraphQL ï¿½ SQLite ï¿½ Redis ï¿½ Docker ï¿½ Chart.js
+

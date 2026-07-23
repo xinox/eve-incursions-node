@@ -1,0 +1,41 @@
+{
+  "name": "slim",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 4004",
+    "build": "next build",
+    "start": "next start -p 4004",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "sync:seed": "ts-node --swc --project tsconfig.sync.json src/sync/run.ts importSeedStaticData",
+    "sync:spawns": "ts-node --swc --project tsconfig.sync.json src/sync/run.ts updateSpawns --influenceLogs",
+    "sync:sov": "ts-node --swc --project tsconfig.sync.json src/sync/run.ts updateSovereignty",
+    "sync:rats": "ts-node --swc --project tsconfig.sync.json src/sync/run.ts updateRats",
+    "sync:all": "ts-node --swc --project tsconfig.sync.json src/sync/run.ts syncAll",
+    "scheduler": "ts-node --swc --project tsconfig.sync.json src/sync/scheduler.ts"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.0",
+    "next": "^16.2.0",
+    "node-schedule": "^2.1.0",
+    "pg": "^8.22.0",
+    "react": "^19.1.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-countdown": "^2.3.6",
+    "react-dom": "^19.1.0",
+    "react-timeago": "^8.3.0",
+    "reflect-metadata": "^0.2.2",
+    "sql.js": "^1.13.0",
+    "typeorm": "^0.3.12"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.7.0",
+    "@swc/helpers": "^0.5.0",
+    "@types/node": "^22.0.0",
+    "@types/node-schedule": "^2.1.0",
+    "@types/react": "^19.1.0",
+    "@types/react-timeago": "^4.1.7",
+    "ts-node": "^10.9.0",
+    "typescript": "^6.0.0"
+  }
+}

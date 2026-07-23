@@ -1,6 +1,7 @@
 ﻿import 'reflect-metadata';
 import {scheduleJob} from 'node-schedule';
 import {importSeedStaticData} from './commands/importSeedStaticData';
+import {updateRats} from './commands/updateRats';
 import {updateSovereignty} from './commands/updateSovereignty';
 import {updateSpawns} from './commands/updateSpawns';
 import {AppDataSource} from './lib/data-source';
@@ -16,6 +17,7 @@ const runSafely = async (label: string, action: () => Promise<void>) => {
 
 const runInitialSync = async () => {
   await runSafely('static seed import', async () => importSeedStaticData());
+  await runSafely('initial rat sync', async () => updateRats());
   await runSafely('initial spawn sync', async () => updateSpawns(true));
   await runSafely('initial sovereignty sync', async () => updateSovereignty());
 };

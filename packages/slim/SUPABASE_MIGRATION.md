@@ -20,6 +20,8 @@ This app uses Supabase as a managed Postgres database. The main production targe
 ## Sync And Scheduler
 
 - Run sync jobs from `packages/slim`, not `packages/server`.
+- `sync:all` imports static data, spawns, sovereignty, and rats.
+- The scheduler imports static data, rats, spawns, and sovereignty on startup.
 - For a fresh Supabase schema, temporarily run with `DB_SYNCHRONIZE=true` during the first sync.
 - Turn `DB_SYNCHRONIZE=false` again after the schema has been created.
 - The scheduler should use the same Supabase transaction pooler settings as production.
@@ -41,16 +43,15 @@ This app uses Supabase as a managed Postgres database. The main production targe
 
 ## Supabase Advisor Findings
 
-- Security advisor reports RLS disabled on public tables.
-- The website reads through the server-side Postgres connection, so enabling RLS should not break the deployed app.
-- If the Supabase Data API is used later, add explicit read policies before exposing tables.
-- Performance advisor reports unindexed foreign keys on `mapconstellations`, `solar_systems`, `spawn_influence_logs`, `spawn_logs`, and `spawns`.
-- Add indexes after the schema shape is stable, ideally as a migration.
+- RLS is enabled on the current public app tables.
+- Public read policies exist for `anon` and `authenticated`; no public write policies were added.
+- Foreign-key and common read indexes have been added in Supabase.
+- Performance advisor may temporarily report the new indexes as unused until production traffic exercises them.
+- These database changes were applied directly in Supabase and should be captured as migrations before the schema is considered stable.
 
 ## Remaining Cleanup
 
 - Treat `packages/server` as legacy unless it is explicitly needed again.
 - Do not port new production behavior back to `packages/server` unless the package remains part of deployment.
 - Replace TypeORM `synchronize` with migrations before the app becomes public and stable.
-- Add indexes for common production reads once the deployed app is stable.
 - Add a small smoke test that reads `/`, `/rats`, `/history`, and `/communities` against Supabase.

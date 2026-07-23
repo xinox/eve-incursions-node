@@ -16,6 +16,7 @@ const commands: Record<string, (args: string[]) => Promise<void>> = {
     await importSeedStaticData();
     await updateSpawns(true);
     await updateSovereignty();
+    await updateRats();
   },
 };
 

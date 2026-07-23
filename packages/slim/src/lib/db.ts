@@ -202,8 +202,8 @@ const getRespawnWindows = async (source: DataSource, activeSpawns: Spawn[]): Pro
       spawn.ended_at as endedAt,
       spawn.established_at as spawnedAt,
       case
-        when round(system.security::numeric, 1) >= 0.5 then 'high'
-        when round(system.security::numeric, 1) <= 0 then 'null'
+        when system.security >= 0.45 then 'high'
+        when system.security < 0.05 then 'null'
         else 'low'
       end as securityArea,
       constellation."constellationName" as constellationName,
@@ -337,7 +337,7 @@ export const getActiveSpawns = async (): Promise<ActiveSpawnsQuery> => {
     join solar_systems system on system."constellationID" = spawn."constellationId"
     where spawn.active = false
       and system."systemType" = 'Staging'
-      and round(system.security::numeric, 1) >= 0.5
+      and system.security >= 0.45
       and spawn.ended_at is not null
     order by spawn.ended_at desc
     limit 1

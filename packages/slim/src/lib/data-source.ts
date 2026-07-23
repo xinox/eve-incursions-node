@@ -1,5 +1,5 @@
 ﻿import {DataSource} from 'typeorm';
-import {getDatabaseSslMode, getDatabaseUrl, getDbFile, getDbMode} from './config';
+import {getDatabasePoolMax, getDatabaseSslMode, getDatabaseUrl, getDbFile, getDbMode, getDbSynchronize} from './config';
 import {Community} from '../sync/models/Community';
 import {Constellation} from '../sync/models/Constellation';
 import {InfluenceLogEntry} from '../sync/models/InfluenceLogEntry';
@@ -25,7 +25,7 @@ const entities = [
 ];
 
 const commonOptions = {
-  synchronize: true,
+  synchronize: getDbSynchronize(),
   logging: false,
   entities,
   migrations: [],
@@ -46,6 +46,11 @@ export const AppDataSource = getDbMode() === 'supabase'
       type: 'postgres',
       url: getDatabaseUrl(),
       ssl,
+      extra: {
+        max: getDatabasePoolMax(),
+        idleTimeoutMillis: 5000,
+        connectionTimeoutMillis: 10000,
+      },
       ...commonOptions,
     })
   : new DataSource({
@@ -53,11 +58,17 @@ export const AppDataSource = getDbMode() === 'supabase'
       location: getDbFile(),
       autoSave: true,
       ...commonOptions,
-    });
+});
+
+let initializationPromise: Promise<DataSource> | null = null;
 
 export const ensureAppDataSource = async () => {
   if (!AppDataSource.isInitialized) {
-    await AppDataSource.initialize();
+    initializationPromise ??= AppDataSource.initialize().catch(error => {
+      initializationPromise = null;
+      throw error;
+    });
+    await initializationPromise;
   }
 
   return AppDataSource;

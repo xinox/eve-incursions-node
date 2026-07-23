@@ -2,7 +2,7 @@
 import {ensureAppDataSource} from './data-source';
 import {ActiveCommunitiesQuery, ActiveSpawnsQuery, Constellation, IncursionRespawnWindow, Rat, RatGroupsQuery, SolarSystem, Spawn, SpawnLogsQuery, Station} from './graphql';
 
-type SqlValue = string | number | Uint8Array | boolean | null;
+type SqlValue = string | number | Uint8Array | boolean | Date | null;
 type Row = Record<string, SqlValue>;
 
 const respawnDelay = 12 * 60 * 60 * 1000;
@@ -63,6 +63,22 @@ const hasTable = async (source: DataSource, table: string) => {
 const bool = (value: SqlValue) => value === 1 || value === '1' || value === true;
 const number = (value: SqlValue) => Number(value ?? 0);
 const text = (value: SqlValue) => String(value ?? '');
+
+const isoDate = (value: SqlValue | undefined) => {
+  if (value === null || value === undefined) return null;
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value.toISOString();
+
+  const raw = String(value).trim();
+  if (!raw) return null;
+
+  let normalized = raw.replace(' ', 'T');
+  if (!/(z|[+-]\d\d(?::?\d\d)?)$/i.test(normalized)) {
+    normalized += 'Z';
+  }
+
+  const date = new Date(normalized);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+};
 
 const securityArea = (security: number): SolarSystem['securityArea'] => {
   if (security <= 0) return 'null';
@@ -249,8 +265,9 @@ const getRespawnWindows = async (source: DataSource, activeSpawns: Spawn[]): Pro
     const history = endedByArea[slot.securityArea].slice(0, historyLimit);
 
     history.forEach((row, index) => {
-      const endedAt = row.endedAt === null ? null : String(row.endedAt);
-      const startAt = endedAt === null ? null : new Date(endedAt.replace(' ', 'T') + 'Z').getTime();
+      const endedAt = isoDate(row.endedAt);
+      const spawnedAt = isoDate(row.spawnedAt);
+      const startAt = endedAt === null ? null : new Date(endedAt).getTime();
       result.push({
         securityArea: slot.securityArea,
         label: slot.label,
@@ -262,7 +279,7 @@ const getRespawnWindows = async (source: DataSource, activeSpawns: Spawn[]): Pro
         constellationName: row.constellationName === null ? null : String(row.constellationName),
         regionName: row.regionName === null ? null : String(row.regionName),
         stageSystemName: row.stageSystemName === null ? null : String(row.stageSystemName),
-        spawnedAt: row.spawnedAt === null ? null : String(row.spawnedAt),
+        spawnedAt,
         endedAt,
         windowOpensAt: startAt === null ? null : new Date(startAt + respawnDelay).toISOString(),
         windowClosesAt: startAt === null ? null : new Date(startAt + respawnDelay + respawnWindow).toISOString(),
@@ -295,8 +312,9 @@ const getRespawnWindows = async (source: DataSource, activeSpawns: Spawn[]): Pro
       }
 
       const template = history[0];
-      const endedAt = template.endedAt === null ? null : String(template.endedAt);
-      const startAt = endedAt === null ? null : new Date(endedAt.replace(' ', 'T') + 'Z').getTime();
+      const endedAt = isoDate(template.endedAt);
+      const spawnedAt = isoDate(template.spawnedAt);
+      const startAt = endedAt === null ? null : new Date(endedAt).getTime();
       result.push({
         securityArea: slot.securityArea,
         label: slot.label,
@@ -308,7 +326,7 @@ const getRespawnWindows = async (source: DataSource, activeSpawns: Spawn[]): Pro
         constellationName: template.constellationName === null ? null : String(template.constellationName),
         regionName: template.regionName === null ? null : String(template.regionName),
         stageSystemName: template.stageSystemName === null ? null : String(template.stageSystemName),
-        spawnedAt: template.spawnedAt === null ? null : String(template.spawnedAt),
+        spawnedAt,
         endedAt,
         windowOpensAt: startAt === null ? null : new Date(startAt + respawnDelay).toISOString(),
         windowClosesAt: startAt === null ? null : new Date(startAt + respawnDelay + respawnWindow).toISOString(),

@@ -77,17 +77,17 @@ const displaySize = (value: SqlValue) => (Number(value ?? 0) + 17) * 2;
 const getStations = async (source: DataSource, solarSystemId: number): Promise<Station[]> => {
   const rows = await queryRows(source, `
     select
-      stationID as id,
-      stationName as name,
+      "stationID" as id,
+      "stationName" as name,
       exists(
         select 1
         from sta_operation_services service
-        where service.operationID = station.operationID
-          and service.serviceID = 4096
+        where service."operationID" = station."operationID"
+          and service."serviceID" = 4096
       ) as hasRepairService
     from sta_stations station
-    where solarSystemID = ?
-    order by stationName
+    where "solarSystemID" = ?
+    order by "stationName"
   `, [solarSystemId]);
 
   return rows.map(row => ({
@@ -100,16 +100,16 @@ const getStations = async (source: DataSource, solarSystemId: number): Promise<S
 const getSystems = async (source: DataSource, constellationId: number): Promise<SolarSystem[]> => {
   const rows = await queryRows(source, `
     select
-      solarSystemID as id,
-      solarSystemName as name,
-      sovereigntyHolderID,
-      sovereigntyHolderName,
-      systemSize as size,
+      "solarSystemID" as id,
+      "solarSystemName" as name,
+      "sovereigntyHolderID",
+      "sovereigntyHolderName",
+      "systemSize" as size,
       security,
-      systemType as type
+      "systemType" as type
     from solar_systems
-    where constellationID = ?
-    order by solarSystemName
+    where "constellationID" = ?
+    order by "solarSystemName"
   `, [constellationId]);
 
   return Promise.all(rows.map(async row => {
@@ -131,13 +131,13 @@ const getSystems = async (source: DataSource, constellationId: number): Promise<
 const getConstellation = async (source: DataSource, constellationId: number): Promise<Constellation> => {
   const row = (await queryRows(source, `
     select
-      constellation.constellationID as id,
-      constellation.constellationName as name,
-      region.regionID as regionId,
-      region.regionName as regionName
+      constellation."constellationID" as id,
+      constellation."constellationName" as name,
+      region."regionID" as regionId,
+      region."regionName" as regionName
     from mapconstellations constellation
-    join mapregions region on region.regionID = constellation.regionID
-    where constellation.constellationID = ?
+    join mapregions region on region."regionID" = constellation."regionID"
+    where constellation."constellationID" = ?
   `, [constellationId]))[0];
 
   return {
@@ -206,15 +206,15 @@ const getRespawnWindows = async (source: DataSource, activeSpawns: Spawn[]): Pro
         when round(system.security, 1) <= 0 then 'null'
         else 'low'
       end as securityArea,
-      constellation.constellationName as constellationName,
-      region.regionName as regionName,
-      system.solarSystemName as stageSystemName
+      constellation."constellationName" as constellationName,
+      region."regionName" as regionName,
+      system."solarSystemName" as stageSystemName
     from spawns spawn
-    join solar_systems system on system.constellationID = spawn.constellationId
-    join mapconstellations constellation on constellation.constellationID = spawn.constellationId
-    join mapregions region on region.regionID = constellation.regionID
+    join solar_systems system on system."constellationID" = spawn."constellationId"
+    join mapconstellations constellation on constellation."constellationID" = spawn."constellationId"
+    join mapregions region on region."regionID" = constellation."regionID"
     where spawn.active = false
-      and system.systemType = 'Staging'
+      and system."systemType" = 'Staging'
       and spawn.ended_at is not null
     order by spawn.ended_at desc
   `);
@@ -334,9 +334,9 @@ export const getActiveSpawns = async (): Promise<ActiveSpawnsQuery> => {
   const lastHighSecEndedAt = hasActiveHighSec ? null : await scalar<string>(source, `
     select spawn.ended_at
     from spawns spawn
-    join solar_systems system on system.constellationID = spawn.constellationId
+    join solar_systems system on system."constellationID" = spawn."constellationId"
     where spawn.active = false
-      and system.systemType = 'Staging'
+      and system."systemType" = 'Staging'
       and round(system.security, 1) >= 0.5
       and spawn.ended_at is not null
     order by spawn.ended_at desc
@@ -419,7 +419,7 @@ export const getActiveCommunities = async (): Promise<ActiveCommunitiesQuery> =>
     select *
     from communities
     where active = true
-    order by communityName
+    order by "communityName"
   `);
 
   return {

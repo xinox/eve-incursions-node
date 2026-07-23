@@ -14,6 +14,8 @@ const respawnSlotConfig = [
   {securityArea: 'null' as const, label: 'Null-Sec', totalSlots: 3},
 ];
 
+const isKnownSecurityArea = (value: unknown): value is 'high' | 'low' | 'null' => value === 'high' || value === 'low' || value === 'null';
+
 const seededRespawnRows = [
   {
     endedAt: '2026-06-26 16:40:00',
@@ -193,22 +195,25 @@ const getRespawnWindows = async (source: DataSource, activeSpawns: Spawn[]): Pro
   if (!(await hasTable(source, 'spawns'))) return [];
 
   const activeCounts = activeSpawns.reduce<Record<'high' | 'low' | 'null', number>>((acc, spawn) => {
-    acc[spawn.stagingSystem.securityArea] += 1;
+    if (isKnownSecurityArea(spawn.stagingSystem.securityArea)) {
+      acc[spawn.stagingSystem.securityArea] += 1;
+    }
+
     return acc;
   }, {high: 0, low: 0, null: 0});
 
   const endedRows = await queryRows(source, `
     select
-      spawn.ended_at as endedAt,
-      spawn.established_at as spawnedAt,
+      spawn.ended_at as "endedAt",
+      spawn.established_at as "spawnedAt",
       case
         when system.security >= 0.45 then 'high'
         when system.security < 0.05 then 'null'
         else 'low'
-      end as securityArea,
-      constellation."constellationName" as constellationName,
-      region."regionName" as regionName,
-      system."solarSystemName" as stageSystemName
+      end as "securityArea",
+      constellation."constellationName" as "constellationName",
+      region."regionName" as "regionName",
+      system."solarSystemName" as "stageSystemName"
     from spawns spawn
     join solar_systems system on system."constellationID" = spawn."constellationId"
     join mapconstellations constellation on constellation."constellationID" = spawn."constellationId"
@@ -225,7 +230,9 @@ const getRespawnWindows = async (source: DataSource, activeSpawns: Spawn[]): Pro
   ];
 
   const endedByArea = mergedRows.reduce<Record<'high' | 'low' | 'null', Row[]>>((acc, row) => {
-    const area = String(row.securityArea) as 'high' | 'low' | 'null';
+    const area = String(row.securityArea);
+    if (!isKnownSecurityArea(area)) return acc;
+
     acc[area].push(row as Row);
     return acc;
   }, {high: [], low: [], null: []});

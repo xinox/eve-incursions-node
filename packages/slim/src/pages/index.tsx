@@ -1,10 +1,12 @@
 import {ActiveSpawnsQuery} from '../lib/graphql';
+import {GetServerSideProps} from 'next';
 import {getActiveSpawns} from '../lib/db';
 import {LastHsSpawn} from '../components/spawn/lastHsSpawn';
 import {RespawnWindows} from '../components/spawn/respawnWindows';
-import styles from '../styles/home.module.css';
+import {setSharedCache} from '../lib/cache';
 
-export const getServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async ({res}) => {
+  setSharedCache(res, 30, 300);
   const props = await getActiveSpawns();
   return {props};
 };

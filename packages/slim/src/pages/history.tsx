@@ -3,8 +3,10 @@ import {SpawnLogsQuery} from '../lib/graphql';
 import {GetServerSideProps} from 'next';
 import {dotlanTransform} from '../lib/utils';
 import {getSpawnLogs} from '../lib/db';
+import {setSharedCache} from '../lib/cache';
 
-export const getServerSideProps: GetServerSideProps = async ({query: {page = 1}}) => {
+export const getServerSideProps: GetServerSideProps = async ({query: {page = 1}, res}) => {
+  setSharedCache(res, 30, 300);
   const {spawnLogs: {items, total}} = await getSpawnLogs(Number(page));
   return {props: {spawnLogs: items, total}};
 };

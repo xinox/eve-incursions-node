@@ -1,10 +1,12 @@
 ﻿import { useState } from 'react';
 import {RatGroupsQuery} from '../lib/graphql';
+import {GetServerSideProps} from 'next';
 import {Rat} from '../components/rats/Rat';
 import {Ewar} from '../components/rats/Ewar';
 import styles from '../components/rats/rats.module.css';
 import {formatNumber} from '../lib/utils';
 import {getRatGroups} from '../lib/db';
+import {setSharedCache} from '../lib/cache';
 
 type RatItem = RatGroupsQuery['ratGroups'][0]['rats'][0];
 type SortMode = 'name-asc' | 'name-desc' | 'alpha-desc' | 'range-desc';
@@ -22,7 +24,8 @@ type TableRow = {
   rat: RatItem;
 };
 
-export const getServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async ({res}) => {
+  setSharedCache(res, 3600, 86400);
   const props = await getRatGroups();
   return {props};
 };

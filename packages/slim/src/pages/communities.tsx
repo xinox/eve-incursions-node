@@ -1,11 +1,13 @@
-﻿import {ActiveCommunitiesQuery} from '../lib/graphql';
+import {ActiveCommunitiesQuery} from '../lib/graphql';
+import {GetServerSideProps} from 'next';
 import {getActiveCommunities} from '../lib/db';
+import {setSharedCache} from '../lib/cache';
 
-export const getServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async ({res}) => {
+  setSharedCache(res, 3600, 86400);
   const props = await getActiveCommunities();
   return {props};
 };
-
 
 export default function Communities({activeCommunities}: ActiveCommunitiesQuery) {
   return (
@@ -51,4 +53,3 @@ export default function Communities({activeCommunities}: ActiveCommunitiesQuery)
     </>
   );
 }
-

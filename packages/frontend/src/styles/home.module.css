@@ -5,6 +5,28 @@
   align-items: start;
 }
 
+.emptyState {
+  padding: var(--sp-5);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.emptyState h2 {
+  margin: 0 0 var(--sp-3);
+  font-size: 1.2rem;
+}
+
+.emptyState p {
+  margin: 0;
+  color: var(--text-dim);
+}
+
+.emptyState p + p {
+  margin-top: var(--sp-2);
+}
+
 @media (max-width: 360px) {
   .grid {
     grid-template-columns: 1fr;

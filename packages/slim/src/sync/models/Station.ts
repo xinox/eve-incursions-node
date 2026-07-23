@@ -1,5 +1,4 @@
-import {AfterLoad, BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn} from 'typeorm';
-import {System} from './System';
+﻿import {AfterLoad, BaseEntity, Column, Entity, PrimaryGeneratedColumn} from 'typeorm';
 import {OperationService} from './OperationService';
 
 @Entity({
@@ -9,15 +8,8 @@ export class Station extends BaseEntity {
   @PrimaryGeneratedColumn({name: 'stationID'})
   id: string;
 
-  @ManyToOne(() => System, system => system.stations)
-  @JoinColumn({name: 'solarSystemID'})
-  system: Promise<System>;
-
   @Column({name: 'solarSystemID'})
   solarSystemID: number;
-
-  @OneToMany(() => OperationService, os => os.station, {eager: true, lazy: true})
-  operationServices: Promise<OperationService[]>;
 
   @Column({name: 'operationID'})
   operationID: number;

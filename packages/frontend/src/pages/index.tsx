@@ -32,15 +32,24 @@ export default function Home({activeSpawns, lastHighSecSpawn: {date}}: ActiveSpa
     }
   });
 
+  const hasSpawns = activeSpawns.length > 0;
+
   return (
     <>
-      <LastHsSpawn date={date} />
-      <div className={styles.grid}>{
-        [...activeSpawns].sort((s1, s2) => s2.stagingSystem.security - s1.stagingSystem.security).map((spawn) => {
-          return (<Spawn key={spawn.id} spawn={spawn}/>);
-        })
-      }</div>
+      <LastHsSpawn date={date} hasSpawns={hasSpawns} />
+      {hasSpawns ? (
+        <div className={styles.grid}> {
+          [...activeSpawns].sort((s1, s2) => s2.stagingSystem.security - s1.stagingSystem.security).map((spawn) => {
+            return (<Spawn key={spawn.id} spawn={spawn}/>);
+          })
+        }</div>
+      ) : (
+        <div className={styles.emptyState} role="status">
+          <h2>No active spawns yet</h2>
+          <p>The app database is running, but it has not imported live ESI data yet.</p>
+          <p>Run `npm run spawns:update` in the server container, or start the scheduler to populate the homepage.</p>
+        </div>
+      )}
     </>
   );
 }
-

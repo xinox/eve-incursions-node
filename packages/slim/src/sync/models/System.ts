@@ -1,6 +1,5 @@
-import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn} from 'typeorm';
+﻿import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn} from 'typeorm';
 import {Constellation} from './Constellation';
-import {Station} from './Station';
 
 @Entity({
   name: 'solar_systems'
@@ -13,8 +12,6 @@ export class System extends BaseEntity {
   @ManyToOne(() => Constellation, c => c.systems, {lazy: true})
   @JoinColumn({name: 'constellationID'})
   constellation: Promise<Constellation>;
-  @OneToMany(() => Station, station => station.system, {lazy: true})
-  stations: Promise<Station[]>;
 
   @Column({name: 'constellationID'})
   constellationId: number;
@@ -33,7 +30,7 @@ export class System extends BaseEntity {
   })
   size: number;
   @Column({
-    type: "float",
+    type: 'float',
     transformer: {
       from: value => (value > 0) ? +parseFloat(value).toFixed(1) : +parseFloat(value).toFixed(2),
       to: value => value
@@ -52,5 +49,4 @@ export class System extends BaseEntity {
       return 'low';
     }
   }
-
 }

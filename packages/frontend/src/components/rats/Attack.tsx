@@ -1,6 +1,7 @@
 import {Rat} from '../../lib/graphql';
 import {DamageTypes, DamageTypesRow} from './DamageTypesRow';
 import styles from './rats.module.css';
+import {formatNumber} from '../../lib/utils';
 
 type AttackProps = Pick<Rat, 'attackAlpha' | 'attackType' | 'attackTypeId' | 'attackTypes' | 'attackDuration'>
 
@@ -15,7 +16,7 @@ export const Attack = ({attackTypes, attackAlpha, attackType, attackTypeId, atta
         <span className={styles.statLabel}>Alpha</span>
         <span className={styles.statValue} title="Alpha">
           <img src={`https://images.evetech.net/types/${attackTypeId}/icon?size=32`} alt={attackType} className={styles.icon}/>
-          {attackAlpha.toLocaleString()}
+          {formatNumber(attackAlpha)}
         </span>
         <DamageTypesRow damageTypes={attackTypes} total={attackAlpha}/>
       </div>
@@ -23,7 +24,7 @@ export const Attack = ({attackTypes, attackAlpha, attackType, attackTypeId, atta
         <span className={styles.statLabel}>DPS</span>
         <span className={styles.statValue} title="DPS">
           <img src={`https://images.evetech.net/types/${attackTypeId}/icon?size=32`} alt={attackType} className={styles.icon}/>
-          {dps.toLocaleString([], {maximumFractionDigits: 1})}
+          {formatNumber(dps, {maximumFractionDigits: 1})}
         </span>
         <DamageTypesRow damageTypes={dpsAttackTypes as DamageTypes} total={dps}/>
       </div>

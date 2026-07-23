@@ -1,4 +1,4 @@
-import {BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn} from 'typeorm';
+import {BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn} from 'typeorm';
 import {Field, Float, ID, ObjectType} from 'type-graphql';
 import {Constellation} from './Constellation';
 import {System} from './System';
@@ -28,12 +28,12 @@ export class Spawn extends BaseEntity {
   boss: boolean;
 
   @Field(() => Date)
-  @Column({name: 'established_at'})
+  @Column({name: 'established_at', type: 'datetime'})
   establishedAt: Date;
 
   @Field(() => Date, {nullable: true})
-  @Column({name: 'ended_at'})
-  endedAt: Date;
+  @Column({name: 'ended_at', type: 'datetime', nullable: true})
+  endedAt: Date | null;
 
   @Field(() => Number)
   @Column({type: "float"})
@@ -53,6 +53,7 @@ export class Spawn extends BaseEntity {
 
   @Field(() => Constellation)
   @ManyToOne(() => Constellation, c => c.spawns, {lazy: true})
+  @JoinColumn({name: 'constellationId'})
   constellation: Promise<Constellation>;
 
   @Field(() => [InfluenceLogEntry])

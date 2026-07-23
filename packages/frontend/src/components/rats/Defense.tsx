@@ -1,6 +1,6 @@
 import {Rat} from '../../lib/graphql';
 import {DamageTypesRow} from './DamageTypesRow';
-import {classNames} from '../../lib/utils';
+import {classNames, formatNumber} from '../../lib/utils';
 import styles from './rats.module.css';
 
 type DefenseProps = Pick<Rat, 'hp' | 'ehp' | 'armorResistances' | 'shieldResistances' | 'structureResistances'>
@@ -9,8 +9,8 @@ const Layer = ({label, hp, ehp, resistances}: { label: string; hp: number; ehp: 
   <div className={styles.statRow}>
     <span className={styles.statLabel}>{label}</span>
     <span className={styles.statValue}>
-      <span className={classNames(styles.badge, styles.hp)} title="HP">{hp.toLocaleString()}</span>
-      <span className={classNames(styles.badge, styles.ehp, 'hidden-xs')} title="EHP">{ehp.toLocaleString([], {maximumFractionDigits: 1})}</span>
+      <span className={classNames(styles.badge, styles.hp)} title="HP">{formatNumber(hp)}</span>
+      <span className={classNames(styles.badge, styles.ehp, 'hidden-xs')} title="EHP">{formatNumber(ehp, {maximumFractionDigits: 1})}</span>
     </span>
     {resistances ? <DamageTypesRow damageTypes={resistances}/> : <div/>}
   </div>

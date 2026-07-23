@@ -1,4 +1,4 @@
-import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from 'typeorm';
+﻿import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from 'typeorm';
 import {Spawn} from './Spawn';
 
 @Entity({
@@ -7,9 +7,9 @@ import {Spawn} from './Spawn';
 export class InfluenceLogEntry extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column({type: "float"})
+  @Column({type: 'float'})
   influence: number;
-  @Column()
+  @Column({type: 'timestamp'})
   date: Date;
 
   @Column({name: 'spawn_id'})

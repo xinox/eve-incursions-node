@@ -1,4 +1,4 @@
-import {BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn} from 'typeorm';
+﻿import {BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn} from 'typeorm';
 import {Constellation} from './Constellation';
 import {System} from './System';
 import {InfluenceLogEntry} from './InfluenceLogEntry';
@@ -17,11 +17,11 @@ export class Spawn extends BaseEntity {
   active: boolean;
   @Column({name: 'hasBoss'})
   boss: boolean;
-  @Column({name: 'established_at', type: 'datetime'})
+  @Column({name: 'established_at', type: 'timestamp'})
   establishedAt: Date;
-  @Column({name: 'ended_at', type: 'datetime', nullable: true})
+  @Column({name: 'ended_at', type: 'timestamp', nullable: true})
   endedAt: Date | null;
-  @Column({type: "float"})
+  @Column({type: 'float'})
   influence: number;
 
   @Column()

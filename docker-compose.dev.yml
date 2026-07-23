@@ -1,4 +1,3 @@
-
 services:
   init:
     image: node:22-alpine
@@ -8,7 +7,7 @@ services:
     command: npm i
 
   server:
-    command: sh -c "npm start"
+    command: sh -c "/eve-incursions/node_modules/.bin/nodemon -w src --ext ts --exec '/eve-incursions/node_modules/.bin/ts-node --swc src/index.ts'"
     depends_on:
       init:
         condition: service_completed_successfully
@@ -19,6 +18,12 @@ services:
       caddy.reverse_proxy: /api* {{upstreams 4001}}
       caddy.@cachedFiles.path: "*.jpg *.jpeg *.png *.gif *.ico *.svg"
       caddy.header: '@cachedFiles Cache-Control "public, max-age=604800, must-revalidate"'
+
+  scheduler:
+    command: sh -c "/eve-incursions/node_modules/.bin/ts-node --swc src/scheduler.ts"
+    depends_on:
+      init:
+        condition: service_completed_successfully
 
   ws:
     command: sh -c "npm start"

@@ -3,15 +3,28 @@ import Countdown from 'react-countdown';
 import {classNames} from '../../lib/utils';
 import styles from './lastHsSpawn.module.css';
 
-export const LastHsSpawn = ({date: dateString}: { date: string | null }) => {
+export const LastHsSpawn = ({date: dateString, hasSpawns = true}: { date: string | null, hasSpawns?: boolean }) => {
   const [now, setNow] = useState<Date>(() => new Date());
-  const date = new Date(dateString ?? "");
+
+  if (dateString === null) {
+    if (!hasSpawns) {
+      return (
+        <div className={classNames(styles.banner, styles.pending)} role="status" suppressHydrationWarning>
+          <span className={styles.dot}/>
+          <span>Waiting for the first spawn import. After the updater runs, the status banner will appear here.</span>
+        </div>
+      );
+    }
+
+    return null;
+  }
+
+  const date = new Date(dateString);
 
   const handleComplete = () => {
     setNow(new Date());
   };
 
-  if (dateString === null) return null;
   const diff = (now.getTime() - date.getTime());
   const _12hours = 12 * 60 * 60 * 1000;
   const _36hours = _12hours * 3;

@@ -16,6 +16,9 @@ export class Station extends BaseEntity {
   @JoinColumn({name: 'solarSystemID'})
   system: Promise<System>;
 
+  @Column({name: 'solarSystemID'})
+  solarSystemID: number;
+
   @OneToMany(() => OperationService, os => os.station, {eager: true, lazy: true})
   operationServices: Promise<OperationService[]>;
 

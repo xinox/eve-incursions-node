@@ -1,3 +1,124 @@
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+
+.pageIntro {
+  margin: var(--sp-2) 0 0;
+  color: var(--text-muted);
+}
+
+.controls {
+  display: flex;
+  align-items: end;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.sortControl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 220px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.sortControl select {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.viewToggle {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-5);
+}
+
+.filterChip,
+.filterActive {
+  padding: 8px 12px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.filterChip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.filterActive {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.compactTable {
+  width: 100%;
+  min-width: 940px;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.compactTable th,
+.compactTable td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.compactTable th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.compactTable tbody tr:hover td {
+  background: var(--surface-2);
+}
+
+.tableNum {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.tableTags {
+  min-width: 240px;
+  color: var(--text-muted);
+}
+
 .groupTitle {
   margin: var(--sp-6) 0 var(--sp-4);
 }
@@ -40,7 +161,29 @@
   }
 }
 
-/* attack / defense stat rows */
+@media (max-width: 700px) {
+  .pageHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .controls {
+    align-items: stretch;
+  }
+
+  .sortControl {
+    min-width: 0;
+  }
+
+  .viewToggle {
+    width: 100%;
+  }
+
+  .viewToggle button {
+    flex: 1;
+  }
+}
+
 .statSection {
   margin-bottom: var(--sp-4);
 }
@@ -76,7 +219,6 @@
   height: var(--sp-4);
 }
 
-/* damage / resist bars */
 .bars {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -147,7 +289,6 @@
   --grad: linear-gradient(#cd8a25, #8c5e19);
 }
 
-/* hp / ehp badges */
 .badge {
   display: inline-block;
   padding: 2px 7px;
@@ -166,7 +307,6 @@
   background: #e8b53b;
 }
 
-/* meta key/value lists */
 .metaGrid {
   display: grid;
   grid-template-columns: 1fr;
@@ -203,7 +343,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ewar + attack-type icons */
 .ewar {
   display: inline-flex;
   align-items: center;

@@ -1,5 +1,5 @@
 ﻿import {DataSource} from 'typeorm';
-import {getDatabaseSsl, getDatabaseUrl, getDbFile, getDbMode} from './config';
+import {getDatabaseSslMode, getDatabaseUrl, getDbFile, getDbMode} from './config';
 import {Community} from '../sync/models/Community';
 import {Constellation} from '../sync/models/Constellation';
 import {InfluenceLogEntry} from '../sync/models/InfluenceLogEntry';
@@ -32,11 +32,20 @@ const commonOptions = {
   subscribers: [],
 };
 
+const sslMode = getDatabaseSslMode();
+const ssl = sslMode === 'require'
+  ? {rejectUnauthorized: false}
+  : sslMode === 'disable'
+    ? false
+    : sslMode === 'verify-full'
+      ? true
+      : undefined;
+
 export const AppDataSource = getDbMode() === 'supabase'
   ? new DataSource({
       type: 'postgres',
       url: getDatabaseUrl(),
-      ssl: getDatabaseSsl(),
+      ssl,
       ...commonOptions,
     })
   : new DataSource({

@@ -1,4 +1,4 @@
-import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from 'typeorm';
+﻿import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from 'typeorm';
 import {Spawn} from './Spawn';
 
 @Entity({
@@ -9,7 +9,7 @@ export class SpawnLog extends BaseEntity {
   id: number;
   @Column()
   state: string;
-  @Column()
+  @Column({type: 'timestamp'})
   date: Date;
 
   @Column({name: 'spawn_id'})

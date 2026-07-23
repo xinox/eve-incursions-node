@@ -19,6 +19,15 @@ interface HistoryProps {
 const fmtDate = (d: Date) => d.toLocaleDateString('en-GB', {weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC'});
 const fmtTime = (d: Date) => d.toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit', timeZone: 'UTC'});
 
+const parseLogDate = (value: string | null | undefined) => {
+  if (!value) return null;
+
+  const normalized = /^\d{4}-\d{2}-\d{2} /.test(value) ? value.replace(' ', 'T') + 'Z' : value;
+  const date = new Date(normalized);
+
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
 export default function History({spawnLogs}: HistoryProps) {
   let previousDate = '';
 
@@ -40,8 +49,8 @@ export default function History({spawnLogs}: HistoryProps) {
           </thead>
           <tbody>
             {spawnLogs.map(logEntry => {
-              const date = new Date(logEntry.date);
-              const dateString = fmtDate(date);
+              const date = parseLogDate(logEntry.date);
+              const dateString = date ? fmtDate(date) : 'Unknown date';
 
               let dateNode: ReactNode;
               if (dateString !== previousDate) {
@@ -54,10 +63,10 @@ export default function History({spawnLogs}: HistoryProps) {
               }
 
               return (
-                <Fragment key={dateString + logEntry.state + logEntry.spawn.stagingSystem.name}>
+                <Fragment key={logEntry.id}>
                   {dateNode}
                   <tr>
-                    <td style={{fontVariantNumeric: 'tabular-nums'}}>{fmtTime(date)}</td>
+                    <td style={{fontVariantNumeric: 'tabular-nums'}}>{date ? fmtTime(date) : '-'}</td>
                     <td><a
                       href={`http://evemaps.dotlan.net/map/${dotlanTransform(logEntry.spawn.constellation.region.name)}/${dotlanTransform(logEntry.spawn.constellation.name)}#radius`}
                       target="_blank" rel="noopener">{logEntry.spawn.constellation.name}</a></td>

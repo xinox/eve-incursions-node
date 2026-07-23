@@ -387,9 +387,29 @@ export const getSpawnLogs = async (page = 1): Promise<SpawnLogsQuery> => {
       log.id as "logId",
       log.state as "logState",
       log.date as "logDate",
-      spawn.*
+      spawn.id as "spawnId",
+      spawn.state as "spawnState",
+      spawn.active,
+      spawn."hasBoss",
+      spawn.established_at,
+      spawn.ended_at,
+      spawn.influence,
+      spawn."constellationId",
+      constellation."constellationName",
+      region."regionID",
+      region."regionName",
+      system."solarSystemID",
+      system."solarSystemName",
+      system."sovereigntyHolderID",
+      system."sovereigntyHolderName",
+      system."systemSize",
+      system.security,
+      system."systemType"
     from spawn_logs log
     join spawns spawn on spawn.id = log.spawn_id
+    join mapconstellations constellation on constellation."constellationID" = spawn."constellationId"
+    join mapregions region on region."regionID" = constellation."regionID"
+    left join solar_systems system on system."constellationID" = constellation."constellationID" and system."systemType" = 'Staging'
     order by log.date desc
     limit ?
     offset ?
@@ -397,12 +417,47 @@ export const getSpawnLogs = async (page = 1): Promise<SpawnLogsQuery> => {
 
   return {
     spawnLogs: {
-      items: await Promise.all(rows.map(async row => ({
-        id: number(row.logId),
-        state: text(row.logState),
-        date: text(row.logDate),
-        spawn: await hydrateSpawn(source, row),
-      }))),
+      items: rows.map(row => {
+        const security = displaySecurity(row.security);
+        const stagingSystem = {
+          id: number(row.solarSystemID),
+          name: text(row.solarSystemName),
+          security,
+          securityArea: securityArea(security),
+          size: displaySize(row.systemSize),
+          type: text(row.systemType || 'Staging'),
+          sovereigntyHolderID: number(row.sovereigntyHolderID),
+          sovereigntyHolderName: text(row.sovereigntyHolderName),
+          stations: [],
+        };
+
+        return {
+          id: number(row.logId),
+          state: text(row.logState),
+          date: text(row.logDate),
+          spawn: {
+            id: number(row.spawnId),
+            state: text(row.spawnState),
+            active: bool(row.active),
+            boss: bool(row.hasBoss),
+            establishedAt: text(row.established_at),
+            endedAt: row.ended_at === null ? null : text(row.ended_at),
+            influence: number(row.influence),
+            constellation: {
+              id: number(row.constellationId),
+              name: text(row.constellationName),
+              region: {
+                id: number(row.regionID),
+                name: text(row.regionName),
+              },
+              systems: [stagingSystem],
+            },
+            stagingSystem,
+            influenceLogArray: [],
+            lastStateChangeDate: text(row.logDate),
+          },
+        };
+      }),
       total,
     },
   };

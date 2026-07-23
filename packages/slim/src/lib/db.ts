@@ -384,9 +384,9 @@ export const getSpawnLogs = async (page = 1): Promise<SpawnLogsQuery> => {
   const total = number(await scalar<number>(source, 'select count(*) from spawn_logs') ?? 0);
   const rows = await queryRows(source, `
     select
-      log.id as logId,
-      log.state as logState,
-      log.date as logDate,
+      log.id as "logId",
+      log.state as "logState",
+      log.date as "logDate",
       spawn.*
     from spawn_logs log
     join spawns spawn on spawn.id = log.spawn_id

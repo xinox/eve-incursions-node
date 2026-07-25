@@ -4,19 +4,19 @@ import {Region} from '../models/Region';
 import {fetchConstellation, fetchRegion, fetchSystem} from '../lib/esi';
 import {AppDataSource} from '../lib/data-source';
 
-export const ensureConstellationData = async (constellationIds: number[]) => {
+export const ensureConstellationData = async (constellationIds: number[], requiredSystemIds?: number[]) => {
   const uniqueIds = [...new Set(constellationIds)];
 
   for (const constellationId of uniqueIds) {
     try {
-      await ensureConstellation(constellationId);
+      await ensureConstellation(constellationId, requiredSystemIds);
     } catch (e) {
       console.error(`Failed to ensure constellation ${constellationId}:`, e);
     }
   }
 };
 
-async function ensureConstellation(constellationId: number) {
+async function ensureConstellation(constellationId: number, requiredSystemIds?: number[]) {
   let dbConstellation = await Constellation.findOneBy({id: constellationId});
   let esiConstellation;
 
@@ -34,10 +34,12 @@ async function ensureConstellation(constellationId: number) {
     console.log(`Created constellation: ${esiConstellation.name} (${constellationId})`);
   }
 
-  esiConstellation ??= await fetchConstellation(constellationId);
+  const systemIds = requiredSystemIds?.length
+    ? [...new Set(requiredSystemIds)]
+    : (esiConstellation ??= await fetchConstellation(constellationId)).systems;
 
   await AppDataSource.manager.transaction(async manager => {
-    for (const systemId of esiConstellation.systems) {
+    for (const systemId of systemIds) {
       try {
         let dbSystem = await System.findOneBy({id: systemId});
         if (dbSystem) continue;

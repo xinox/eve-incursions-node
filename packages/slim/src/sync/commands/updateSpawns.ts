@@ -36,11 +36,12 @@ export const updateSpawns = async (doInfluenceLogs = false) => {
   const knownStagingSystems = await System.find({where: {id: In(stagingSystemIds)}});
   const knownConstellationIds = new Set(knownConstellations.map(c => c.id));
   const knownStagingSystemIds = new Set(knownStagingSystems.map(system => system.id));
-  const missingConstellationIds = spawns
-    .filter(spawn => !knownConstellationIds.has(spawn.constellation_id) || !knownStagingSystemIds.has(spawn.staging_solar_system_id))
-    .map(spawn => spawn.constellation_id);
+  const missingStaticDataSpawns = spawns
+    .filter(spawn => !knownConstellationIds.has(spawn.constellation_id) || !knownStagingSystemIds.has(spawn.staging_solar_system_id));
 
-  await ensureConstellationData(missingConstellationIds);
+  for (const spawn of missingStaticDataSpawns) {
+    await ensureConstellationData([spawn.constellation_id], [spawn.staging_solar_system_id]);
+  }
 
   await AppDataSource.manager.transaction(async manager => {
     const updatedSpawns = [];

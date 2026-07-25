@@ -24,9 +24,15 @@ export const runSpawnSync = async (req: NextApiRequest, res: NextApiResponse<Syn
     return res.status(401).json({ok: false, error: 'Unauthorized'});
   }
 
+  const syncLabel = influenceLogs ? 'influence' : 'spawns';
+  console.log(`Cron ${syncLabel} sync started.`);
+
   try {
+    console.log(`Cron ${syncLabel} sync initializing database.`);
     await ensureAppDataSource();
+    console.log(`Cron ${syncLabel} sync updating data.`);
     await updateSpawns(influenceLogs);
+    console.log(`Cron ${syncLabel} sync completed.`);
 
     return res.status(200).json({
       ok: true,

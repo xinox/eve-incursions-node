@@ -1,0 +1,46 @@
+﻿import 'reflect-metadata';
+import type {NextApiRequest, NextApiResponse} from 'next';
+import {ensureAppDataSource} from '../../../lib/data-source';
+import {updateSpawns} from '../../../sync/commands/updateSpawns';
+
+type SyncResponse = {
+  ok: boolean;
+  syncedAt?: string;
+  error?: string;
+};
+
+const isAuthorized = (req: NextApiRequest) => {
+  const secret = process.env.CRON_SECRET;
+  return process.env.NODE_ENV !== 'production' || (Boolean(secret) && req.headers.authorization === `Bearer ${secret}`);
+};
+
+export const runSpawnSync = async (req: NextApiRequest, res: NextApiResponse<SyncResponse>, influenceLogs = false) => {
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET');
+    return res.status(405).json({ok: false, error: 'Method not allowed'});
+  }
+
+  if (!isAuthorized(req)) {
+    return res.status(401).json({ok: false, error: 'Unauthorized'});
+  }
+
+  try {
+    await ensureAppDataSource();
+    await updateSpawns(influenceLogs);
+
+    return res.status(200).json({
+      ok: true,
+      syncedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Spawn cron sync failed', error);
+    return res.status(500).json({
+      ok: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse<SyncResponse>) {
+  return runSpawnSync(req, res, false);
+}

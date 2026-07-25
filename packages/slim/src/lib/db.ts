@@ -151,8 +151,8 @@ const getConstellation = async (source: DataSource, constellationId: number): Pr
     select
       constellation."constellationID" as id,
       constellation."constellationName" as name,
-      region."regionID" as regionId,
-      region."regionName" as regionName
+      region."regionID" as "regionId",
+      region."regionName" as "regionName"
     from mapconstellations constellation
     join mapregions region on region."regionID" = constellation."regionID"
     where constellation."constellationID" = ?
@@ -517,3 +517,4 @@ export const getActiveCommunities = async (): Promise<ActiveCommunitiesQuery> =>
     })),
   };
 };
+

@@ -1,0 +1,12 @@
+﻿{
+  "crons": [
+    {
+      "path": "/api/cron/sync-spawns",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/sync-influence",
+      "schedule": "0 * * * *"
+    }
+  ]
+}

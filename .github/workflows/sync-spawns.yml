@@ -1,0 +1,33 @@
+name: Sync EVE Incursions
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+
+jobs:
+  sync-spawns:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync active spawns
+        run: |
+          curl --fail --show-error --silent \
+            --header "Authorization: Bearer $CRON_SECRET" \
+            "$SYNC_URL/api/cron/sync-spawns"
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SYNC_URL: ${{ vars.SYNC_URL || 'https://eve-incursions-node-delta.vercel.app' }}
+
+      - name: Sync hourly influence logs
+        run: |
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ] && [ "$(date -u +%M)" != "00" ]; then
+            echo "Skipping influence sync outside the hourly window."
+            exit 0
+          fi
+
+          curl --fail --show-error --silent \
+            --header "Authorization: Bearer $CRON_SECRET" \
+            "$SYNC_URL/api/cron/sync-influence"
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SYNC_URL: ${{ vars.SYNC_URL || 'https://eve-incursions-node-delta.vercel.app' }}

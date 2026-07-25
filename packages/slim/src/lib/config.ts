@@ -21,7 +21,7 @@ export const getDbSynchronize = () => {
 };
 
 export const getDatabasePoolMax = () => {
-  const value = Number(process.env.DATABASE_POOL_MAX || 1);
+  const value = Number(process.env.DATABASE_POOL_MAX || 2);
   return Number.isFinite(value) && value > 0 ? value : 1;
 };
 

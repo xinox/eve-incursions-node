@@ -8,7 +8,7 @@ This app uses Supabase as a managed Postgres database. The main production targe
 - Use the Supabase transaction pooler for `DATABASE_URL`.
 - The transaction pooler uses port `6543`.
 - Use `DATABASE_SSL=require`.
-- Keep `DATABASE_POOL_MAX=1` for Vercel serverless functions.
+- Keep `DATABASE_POOL_MAX=2` for Vercel serverless functions. TypeORM's sync path can otherwise wait on itself when a transaction and entity calls overlap.
 - Keep `DB_SYNCHRONIZE=false` in production after the schema exists.
 
 ## Local Runtime

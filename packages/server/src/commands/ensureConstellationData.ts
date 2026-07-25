@@ -18,9 +18,10 @@ export const ensureConstellationData = async (constellationIds: number[]) => {
 
 async function ensureConstellation(constellationId: number) {
   let dbConstellation = await Constellation.findOneBy({id: constellationId});
+  let esiConstellation;
 
   if (!dbConstellation) {
-    const esiConstellation = await fetchConstellation(constellationId);
+    esiConstellation = await fetchConstellation(constellationId);
 
     await ensureRegion(esiConstellation.region_id);
 
@@ -33,32 +34,28 @@ async function ensureConstellation(constellationId: number) {
     console.log(`Created constellation: ${esiConstellation.name} (${constellationId})`);
   }
 
-  const esiConstellation = await fetchConstellation(constellationId);
+  esiConstellation ??= await fetchConstellation(constellationId);
 
   await AppDataSource.manager.transaction(async manager => {
     for (const systemId of esiConstellation.systems) {
       try {
-        const esiSystem = await fetchSystem(systemId);
         let dbSystem = await System.findOneBy({id: systemId});
+        if (dbSystem) continue;
 
-        if (!dbSystem) {
-          dbSystem = new System();
-          dbSystem.id = systemId;
-          dbSystem.name = esiSystem.name;
-          dbSystem.constellationId = constellationId;
-          dbSystem.sovereigntyHolderID = 0;
-          dbSystem.sovereigntyHolderName = '';
-          dbSystem.isIsland = false;
-          dbSystem.size = 0;
-          dbSystem.security = esiSystem.security_status;
-          dbSystem.type = 'not known';
-          console.log(`Created system: ${esiSystem.name} (${systemId}) sec=${esiSystem.security_status.toFixed(2)}`);
-        } else {
-          dbSystem.security = esiSystem.security_status;
-          dbSystem.name = esiSystem.name;
-        }
+        const esiSystem = await fetchSystem(systemId);
+        dbSystem = new System();
+        dbSystem.id = systemId;
+        dbSystem.name = esiSystem.name;
+        dbSystem.constellationId = constellationId;
+        dbSystem.sovereigntyHolderID = 0;
+        dbSystem.sovereigntyHolderName = '';
+        dbSystem.isIsland = false;
+        dbSystem.size = 0;
+        dbSystem.security = esiSystem.security_status;
+        dbSystem.type = 'not known';
 
         await manager.save(dbSystem);
+        console.log(`Created system: ${esiSystem.name} (${systemId}) sec=${esiSystem.security_status.toFixed(2)}`);
       } catch (e) {
         console.error(`Failed to fetch/save system ${systemId}:`, e);
       }

@@ -1,5 +1,6 @@
 import {Spawn} from '../models/Spawn';
 import {System} from '../models/System';
+import {Constellation} from '../models/Constellation';
 import {SpawnLog} from '../models/SpawnLog';
 import {capitalize} from '../lib/utils';
 import {InfluenceLogEntry} from '../models/InfluenceLogEntry';
@@ -78,7 +79,17 @@ export const updateSpawns = async (doInfluenceLogs = false) => {
 
   if (!Array.isArray(spawns)) return;
 
-  await ensureConstellationData(spawns.map(s => s.constellation_id));
+  const constellationIds = [...new Set(spawns.map(s => s.constellation_id))];
+  const stagingSystemIds = [...new Set(spawns.map(s => s.staging_solar_system_id))];
+  const knownConstellations = await Constellation.find({where: {id: In(constellationIds)}});
+  const knownStagingSystems = await System.find({where: {id: In(stagingSystemIds)}});
+  const knownConstellationIds = new Set(knownConstellations.map(c => c.id));
+  const knownStagingSystemIds = new Set(knownStagingSystems.map(system => system.id));
+  const missingConstellationIds = spawns
+    .filter(spawn => !knownConstellationIds.has(spawn.constellation_id) || !knownStagingSystemIds.has(spawn.staging_solar_system_id))
+    .map(spawn => spawn.constellation_id);
+
+  await ensureConstellationData(missingConstellationIds);
 
   await AppDataSource.manager.transaction(async manager => {
     const updatedSpawns = [];

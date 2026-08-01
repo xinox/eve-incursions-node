@@ -61,7 +61,7 @@ export class Spawn extends BaseEntity {
 
       const influenceLogs = await AppDataSource.manager.find(InfluenceLogEntry, {
         where: {spawn: {id: this.id}},
-        order: {date: 'DESC'},
+        order: {id: 'DESC'},
         take: maxEntries
       });
 

@@ -174,7 +174,7 @@ const influenceLogArray = async (source: DataSource, spawnId: number): Promise<A
     select influence
     from spawn_influence_logs
     where spawn_id = ?
-    order by date desc
+    order by id desc
     limit 72
   `, [spawnId])).map(row => Number(row.influence) * 100).reverse();
 

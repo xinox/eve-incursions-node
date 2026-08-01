@@ -55,7 +55,7 @@ export class Spawn extends BaseEntity {
       }
     }
   }
-  get influenceLogArray(): Promise<number[]> {
+  get influenceLogArray(): Promise<Array<number | null>> {
     return (async () => {
       const maxEntries = 72;
 
@@ -66,8 +66,8 @@ export class Spawn extends BaseEntity {
       });
 
       const missing = maxEntries - influenceLogs.length;
-      const filler = missing ? (Array(missing).fill(0)) : [];
-      return [...filler, ...influenceLogs.map(i => i.influence * 100).reverse()] as number[];
+      const filler = missing ? Array(missing).fill(null) : [];
+      return [...filler, ...influenceLogs.map(i => i.influence * 100).reverse()] as Array<number | null>;
     })();
   }
   get lastStateChangeDate(): Promise<Date | undefined> {

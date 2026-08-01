@@ -169,7 +169,7 @@ const getConstellation = async (source: DataSource, constellationId: number): Pr
   };
 };
 
-const influenceLogArray = async (source: DataSource, spawnId: number): Promise<number[]> => {
+const influenceLogArray = async (source: DataSource, spawnId: number): Promise<Array<number | null>> => {
   const values = (await queryRows(source, `
     select influence
     from spawn_influence_logs
@@ -178,7 +178,7 @@ const influenceLogArray = async (source: DataSource, spawnId: number): Promise<n
     limit 72
   `, [spawnId])).map(row => Number(row.influence) * 100).reverse();
 
-  return [...Array(Math.max(0, 72 - values.length)).fill(0), ...values];
+  return [...Array(Math.max(0, 72 - values.length)).fill(null), ...values];
 };
 
 const hydrateSpawn = async (source: DataSource, row: Row): Promise<Spawn> => {

@@ -3,7 +3,8 @@ name: Sync EVE Incursions
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '5-59/5 * * * *'
+    - cron: '0 * * * *'
 
 jobs:
   sync-spawns:
@@ -19,12 +20,8 @@ jobs:
           SYNC_URL: ${{ vars.SYNC_URL || 'https://eve-incursions-node-delta.vercel.app' }}
 
       - name: Sync hourly influence logs
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 * * * *'
         run: |
-          if [ "${{ github.event_name }}" != "workflow_dispatch" ] && [ "$(date -u +%M)" != "00" ]; then
-            echo "Skipping influence sync outside the hourly window."
-            exit 0
-          fi
-
           curl --fail --show-error --silent --max-time 90 \
             --header "Authorization: Bearer $CRON_SECRET" \
             "$SYNC_URL/api/cron/sync-influence"

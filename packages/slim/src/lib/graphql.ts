@@ -318,7 +318,7 @@ export type Spawn = {
 
 
 
-  influenceLogArray: number[];
+  influenceLogArray: Array<number | null>;
 
 
 

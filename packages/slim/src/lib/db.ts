@@ -92,124 +92,185 @@ const displaySecurity = (value: SqlValue) => {
 
 const displaySize = (value: SqlValue) => (Number(value ?? 0) + 17) * 2;
 
-const getStations = async (source: DataSource, solarSystemId: number): Promise<Station[]> => {
-  const rows = await queryRows(source, `
+const activeSpawnRows = (source: DataSource) => queryRows(source, `
+  select
+    spawn.id as "spawnId",
+    spawn.state as "spawnState",
+    spawn.active as "spawnActive",
+    spawn."hasBoss" as "spawnHasBoss",
+    spawn.established_at as "spawnEstablishedAt",
+    spawn.ended_at as "spawnEndedAt",
+    spawn.influence as "spawnInfluence",
+    constellation."constellationID" as "constellationId",
+    constellation."constellationName" as "constellationName",
+    region."regionID" as "regionId",
+    region."regionName" as "regionName",
+    system."solarSystemID" as "systemId",
+    system."solarSystemName" as "systemName",
+    system."sovereigntyHolderID",
+    system."sovereigntyHolderName",
+    system."systemSize" as "systemSize",
+    system.security,
+    system."systemType" as "systemType"
+  from spawns spawn
+  join mapconstellations constellation on constellation."constellationID" = spawn."constellationId"
+  join mapregions region on region."regionID" = constellation."regionID"
+  join solar_systems system on system."constellationID" = constellation."constellationID"
+  where spawn.active = true
+  order by spawn.established_at desc, system."solarSystemName"
+`);
+
+const activeStationRows = (source: DataSource) => queryRows(source, `
+  select
+    station."solarSystemID" as "systemId",
+    station."stationID" as id,
+    station."stationName" as name,
+    exists(
+      select 1
+      from sta_operation_services service
+      where service."operationID" = station."operationID"
+        and service."serviceID" = 4096
+    ) as "hasRepairService"
+  from sta_stations station
+  join solar_systems system on system."solarSystemID" = station."solarSystemID"
+  where system."constellationID" in (
+    select "constellationId" from spawns where active = true
+  )
+  order by station."solarSystemID", station."stationName"
+`);
+
+const activeInfluenceRows = (source: DataSource) => queryRows(source, `
+  select ranked."spawnId", ranked.influence
+  from (
     select
-      "stationID" as id,
-      "stationName" as name,
-      exists(
-        select 1
-        from sta_operation_services service
-        where service."operationID" = station."operationID"
-          and service."serviceID" = 4096
-      ) as hasRepairService
-    from sta_stations station
-    where "solarSystemID" = ?
-    order by "stationName"
-  `, [solarSystemId]);
+      influence.spawn_id as "spawnId",
+      influence.influence,
+      influence.id,
+      row_number() over (partition by influence.spawn_id order by influence.id desc) as row_num
+    from spawn_influence_logs influence
+    join spawns spawn on spawn.id = influence.spawn_id
+    where spawn.active = true
+  ) ranked
+  where ranked.row_num <= 72
+  order by ranked."spawnId", ranked.id desc
+`);
 
-  return rows.map(row => ({
-    id: number(row.id),
-    name: text(row.name),
-    hasRepairService: bool(row.hasRepairService),
-  }));
-};
-
-const getSystems = async (source: DataSource, constellationId: number): Promise<SolarSystem[]> => {
-  const rows = await queryRows(source, `
+const activeStateRows = (source: DataSource) => queryRows(source, `
+  select ranked."spawnId", ranked.date
+  from (
     select
-      "solarSystemID" as id,
-      "solarSystemName" as name,
-      "sovereigntyHolderID",
-      "sovereigntyHolderName",
-      "systemSize" as size,
-      security,
-      "systemType" as type
-    from solar_systems
-    where "constellationID" = ?
-    order by "solarSystemName"
-  `, [constellationId]);
+      log.spawn_id as "spawnId",
+      log.date,
+      row_number() over (partition by log.spawn_id order by log.date desc, log.id desc) as row_num
+    from spawn_logs log
+    join spawns spawn on spawn.id = log.spawn_id
+    where spawn.active = true
+  ) ranked
+  where ranked.row_num = 1
+`);
 
-  return Promise.all(rows.map(async row => {
-    const security = displaySecurity(row.security);
-    return {
+const endedSpawnRows = (source: DataSource) => queryRows(source, `
+  select
+    spawn.ended_at as "endedAt",
+    spawn.established_at as "spawnedAt",
+    case
+      when system.security >= 0.45 then 'high'
+      when system.security < 0.05 then 'null'
+      else 'low'
+    end as "securityArea",
+    constellation."constellationName" as "constellationName",
+    region."regionName" as "regionName",
+    system."solarSystemName" as "stageSystemName"
+  from spawns spawn
+  join solar_systems system on system."constellationID" = spawn."constellationId"
+  join mapconstellations constellation on constellation."constellationID" = spawn."constellationId"
+  join mapregions region on region."regionID" = constellation."regionID"
+  where spawn.active = false
+    and system."systemType" = 'Staging'
+    and spawn.ended_at is not null
+  order by spawn.ended_at desc
+`);
+
+const hydrateActiveSpawns = (spawnRows: Row[], stationRows: Row[], influenceRows: Row[], stateRows: Row[]): Spawn[] => {
+  const stationsBySystem = new Map<number, Station[]>();
+  for (const row of stationRows) {
+    const systemId = number(row.systemId);
+    const stations = stationsBySystem.get(systemId) ?? [];
+    stations.push({
       id: number(row.id),
       name: text(row.name),
+      hasRepairService: bool(row.hasRepairService),
+    });
+    stationsBySystem.set(systemId, stations);
+  }
+
+  const influenceBySpawn = new Map<number, number[]>();
+  for (const row of influenceRows) {
+    const spawnId = number(row.spawnId);
+    const values = influenceBySpawn.get(spawnId) ?? [];
+    values.push(Number(row.influence) * 100);
+    influenceBySpawn.set(spawnId, values);
+  }
+
+  const stateBySpawn = new Map(stateRows.map(row => [number(row.spawnId), text(row.date)]));
+  const groups = new Map<number, {row: Row; constellation: Constellation}>();
+
+  for (const row of spawnRows) {
+    const spawnId = number(row.spawnId);
+    let group = groups.get(spawnId);
+    if (!group) {
+      group = {
+        row,
+        constellation: {
+          id: number(row.constellationId),
+          name: text(row.constellationName),
+          region: {
+            id: number(row.regionId),
+            name: text(row.regionName),
+          },
+          systems: [],
+        },
+      };
+      groups.set(spawnId, group);
+    }
+
+    const security = displaySecurity(row.security);
+    const systemId = number(row.systemId);
+    group.constellation.systems.push({
+      id: systemId,
+      name: text(row.systemName),
       security,
       securityArea: securityArea(security),
-      size: displaySize(row.size),
-      type: text(row.type || 'not known'),
+      size: displaySize(row.systemSize),
+      type: text(row.systemType || 'not known'),
       sovereigntyHolderID: number(row.sovereigntyHolderID),
       sovereigntyHolderName: text(row.sovereigntyHolderName),
-      stations: await getStations(source, number(row.id)),
+      stations: stationsBySystem.get(systemId) ?? [],
+    });
+  }
+
+  return [...groups.entries()].map(([spawnId, {row, constellation}]) => {
+    const newestFirst = influenceBySpawn.get(spawnId) ?? [];
+    const values = [...newestFirst].reverse();
+    const stagingSystem = constellation.systems.find(system => system.type === 'Staging') ?? constellation.systems[0];
+
+    return {
+      id: spawnId,
+      state: text(row.spawnState),
+      active: bool(row.spawnActive),
+      boss: bool(row.spawnHasBoss),
+      establishedAt: text(row.spawnEstablishedAt),
+      endedAt: row.spawnEndedAt === null ? null : text(row.spawnEndedAt),
+      influence: Number(row.spawnInfluence ?? 0),
+      constellation,
+      stagingSystem,
+      influenceLogArray: [...Array(Math.max(0, 72 - values.length)).fill(null), ...values],
+      lastStateChangeDate: stateBySpawn.get(spawnId) ?? new Date().toISOString(),
     };
-  }));
+  });
 };
 
-const getConstellation = async (source: DataSource, constellationId: number): Promise<Constellation> => {
-  const row = (await queryRows(source, `
-    select
-      constellation."constellationID" as id,
-      constellation."constellationName" as name,
-      region."regionID" as "regionId",
-      region."regionName" as "regionName"
-    from mapconstellations constellation
-    join mapregions region on region."regionID" = constellation."regionID"
-    where constellation."constellationID" = ?
-  `, [constellationId]))[0];
-
-  return {
-    id: number(row?.id),
-    name: text(row?.name),
-    region: {
-      id: number(row?.regionId),
-      name: text(row?.regionName),
-    },
-    systems: await getSystems(source, constellationId),
-  };
-};
-
-const influenceLogArray = async (source: DataSource, spawnId: number): Promise<Array<number | null>> => {
-  const values = (await queryRows(source, `
-    select influence
-    from spawn_influence_logs
-    where spawn_id = ?
-    order by id desc
-    limit 72
-  `, [spawnId])).map(row => Number(row.influence) * 100).reverse();
-
-  return [...Array(Math.max(0, 72 - values.length)).fill(null), ...values];
-};
-
-const hydrateSpawn = async (source: DataSource, row: Row): Promise<Spawn> => {
-  const constellation = await getConstellation(source, number(row.constellationId));
-  const stagingSystem = constellation.systems.find(system => system.type === 'Staging') ?? constellation.systems[0];
-  const lastStateChange = await scalar<string>(source, `
-    select date
-    from spawn_logs
-    where spawn_id = ?
-    order by date desc
-    limit 1
-  `, [number(row.id)]);
-
-  return {
-    id: number(row.id),
-    state: text(row.state),
-    active: bool(row.active),
-    boss: bool(row.hasBoss),
-    establishedAt: text(row.established_at),
-    endedAt: row.ended_at === null ? null : text(row.ended_at),
-    influence: Number(row.influence ?? 0),
-    constellation,
-    stagingSystem,
-    influenceLogArray: await influenceLogArray(source, number(row.id)),
-    lastStateChangeDate: lastStateChange ?? new Date().toISOString(),
-  };
-};
-
-const getRespawnWindows = async (source: DataSource, activeSpawns: Spawn[]): Promise<IncursionRespawnWindow[]> => {
-  if (!(await hasTable(source, 'spawns'))) return [];
-
+const getRespawnWindows = (activeSpawns: Spawn[], endedRows: Row[]): IncursionRespawnWindow[] => {
   const activeCounts = activeSpawns.reduce<Record<'high' | 'low' | 'null', number>>((acc, spawn) => {
     if (isKnownSecurityArea(spawn.stagingSystem.securityArea)) {
       acc[spawn.stagingSystem.securityArea] += 1;
@@ -217,28 +278,6 @@ const getRespawnWindows = async (source: DataSource, activeSpawns: Spawn[]): Pro
 
     return acc;
   }, {high: 0, low: 0, null: 0});
-
-  const endedRows = await queryRows(source, `
-    select
-      spawn.ended_at as "endedAt",
-      spawn.established_at as "spawnedAt",
-      case
-        when system.security >= 0.45 then 'high'
-        when system.security < 0.05 then 'null'
-        else 'low'
-      end as "securityArea",
-      constellation."constellationName" as "constellationName",
-      region."regionName" as "regionName",
-      system."solarSystemName" as "stageSystemName"
-    from spawns spawn
-    join solar_systems system on system."constellationID" = spawn."constellationId"
-    join mapconstellations constellation on constellation."constellationID" = spawn."constellationId"
-    join mapregions region on region."regionID" = constellation."regionID"
-    where spawn.active = false
-      and system."systemType" = 'Staging'
-      and spawn.ended_at is not null
-    order by spawn.ended_at desc
-  `);
 
   const mergedRows = [
     ...seededRespawnRows,
@@ -345,28 +384,20 @@ export const getActiveSpawns = async (): Promise<ActiveSpawnsQuery> => {
     return {activeSpawns: [], lastHighSecSpawn: {date: null}, respawnWindows: []};
   }
 
-  const activeRows = await queryRows(source, `
-    select *
-    from spawns
-    where active = true
-    order by established_at desc
-  `);
+  const [spawnRows, stationRows, influenceRows, stateRows, endedRows] = await Promise.all([
+    activeSpawnRows(source),
+    activeStationRows(source),
+    activeInfluenceRows(source),
+    activeStateRows(source),
+    endedSpawnRows(source),
+  ]);
 
-  const activeSpawns = await Promise.all(activeRows.map(row => hydrateSpawn(source, row)));
-  const respawnWindows = await getRespawnWindows(source, activeSpawns);
+  const activeSpawns = hydrateActiveSpawns(spawnRows, stationRows, influenceRows, stateRows);
+  const respawnWindows = getRespawnWindows(activeSpawns, endedRows);
   const hasActiveHighSec = activeSpawns.some(spawn => spawn.stagingSystem.security >= 0.5);
-
-  const lastHighSecEndedAt = hasActiveHighSec ? null : await scalar<string>(source, `
-    select spawn.ended_at
-    from spawns spawn
-    join solar_systems system on system."constellationID" = spawn."constellationId"
-    where spawn.active = false
-      and system."systemType" = 'Staging'
-      and system.security >= 0.45
-      and spawn.ended_at is not null
-    order by spawn.ended_at desc
-    limit 1
-  `);
+  const lastHighSecEndedAt = hasActiveHighSec
+    ? null
+    : isoDate(endedRows.find(row => row.securityArea === 'high')?.endedAt);
 
   return {
     activeSpawns,

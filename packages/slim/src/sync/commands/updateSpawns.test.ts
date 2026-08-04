@@ -4,6 +4,7 @@ const {
   mockConstellationFind,
   mockEnsureConstellationData,
   mockEsiRequest,
+  mockFetchIncursionSystemTypes,
   mockManagerSave,
   mockSpawnFind,
   mockSpawnFindOne,
@@ -12,6 +13,7 @@ const {
   mockConstellationFind: vi.fn(),
   mockEnsureConstellationData: vi.fn(),
   mockEsiRequest: vi.fn(),
+  mockFetchIncursionSystemTypes: vi.fn(),
   mockManagerSave: vi.fn(),
   mockSpawnFind: vi.fn(),
   mockSpawnFindOne: vi.fn(),
@@ -19,6 +21,7 @@ const {
 }));
 
 vi.mock('../lib/esi', () => ({esiRequest: mockEsiRequest}));
+vi.mock('../lib/incursionLayouts', () => ({fetchIncursionSystemTypes: mockFetchIncursionSystemTypes}));
 vi.mock('./ensureConstellationData', () => ({ensureConstellationData: mockEnsureConstellationData}));
 vi.mock('../lib/data-source', () => ({
   AppDataSource: {
@@ -63,7 +66,8 @@ describe('updateSpawns static data repair', () => {
       state: 'established',
       type: 'Incursion',
     }]);
-    mockConstellationFind.mockResolvedValue([{id: 20000001}]);
+    mockConstellationFind.mockResolvedValue([{id: 20000001, name: 'Test Constellation'}]);
+    mockFetchIncursionSystemTypes.mockResolvedValue(new Map());
     mockSpawnFindOne.mockResolvedValue({id: 1, state: 'Established'});
     mockSpawnFind.mockResolvedValue([]);
   });
@@ -89,5 +93,27 @@ describe('updateSpawns static data repair', () => {
     await updateSpawns();
 
     expect(mockEnsureConstellationData).not.toHaveBeenCalled();
+  });
+
+  it('stores resolved types for systems marked as not known', async () => {
+    const vanguard = {id: 30000001, name: 'System A', type: 'not known'};
+    const headquarters = {id: 30000002, name: 'System B', type: 'not known'};
+    const staging = {id: 30000003, name: 'System C', type: 'Staging'};
+    mockSystemFind.mockResolvedValue([vanguard, headquarters, staging]);
+    mockFetchIncursionSystemTypes.mockResolvedValue(new Map([
+      [30000001, 'Vanguard'],
+      [30000002, 'Headquarters'],
+    ]));
+
+    await updateSpawns();
+
+    expect(mockFetchIncursionSystemTypes).toHaveBeenCalledWith(
+      'Test Constellation',
+      [vanguard, headquarters],
+    );
+    expect(mockManagerSave).toHaveBeenCalledWith([
+      expect.objectContaining({id: 30000001, type: 'Vanguard'}),
+      expect.objectContaining({id: 30000002, type: 'Headquarters'}),
+    ]);
   });
 });

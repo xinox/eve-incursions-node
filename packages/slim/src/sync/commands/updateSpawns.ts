@@ -8,6 +8,7 @@ import {In, Not} from 'typeorm';
 import {AppDataSource} from '../lib/data-source';
 import {ensureConstellationData} from './ensureConstellationData';
 import {esiRequest} from '../lib/esi';
+import {fetchIncursionSystemTypes} from '../lib/incursionLayouts';
 
 interface APISpawns {
   constellation_id: number;
@@ -20,6 +21,54 @@ interface APISpawns {
   type: string
 
 }
+
+const updateUnknownSystemTypes = async (spawns: APISpawns[]) => {
+  const constellationIds = [...new Set(spawns.map(spawn => spawn.constellation_id))];
+  const systemIds = [...new Set(spawns.flatMap(spawn => [
+    ...spawn.infested_solar_systems,
+    spawn.staging_solar_system_id,
+  ]))];
+
+  const [constellations, systems] = await Promise.all([
+    Constellation.find({where: {id: In(constellationIds)}}),
+    System.find({where: {id: In(systemIds)}}),
+  ]);
+  const constellationNames = new Map(constellations.map(constellation => [constellation.id, constellation.name]));
+  const systemsById = new Map(systems.map(system => [system.id, system]));
+
+  const updates = (await Promise.all(spawns.map(async spawn => {
+    const unknownSystems = [...new Set([
+      ...spawn.infested_solar_systems,
+      spawn.staging_solar_system_id,
+    ])]
+      .map(systemId => systemsById.get(systemId))
+      .filter((system): system is System => system?.type === 'not known');
+    const constellationName = constellationNames.get(spawn.constellation_id);
+
+    if (!constellationName || unknownSystems.length === 0) return [];
+
+    try {
+      const types = await fetchIncursionSystemTypes(constellationName, unknownSystems);
+      return unknownSystems.flatMap(system => {
+        const type = types.get(system.id);
+        if (!type) return [];
+
+        system.type = type;
+        return [system];
+      });
+    } catch (error) {
+      console.error(`Failed to resolve incursion layout for ${constellationName}:`, error);
+      return [];
+    }
+  }))).flat();
+
+  if (updates.length === 0) return;
+
+  await AppDataSource.manager.transaction(async manager => {
+    await manager.save(updates);
+  });
+  console.log(`Updated ${updates.length} incursion system type(s).`);
+};
 
 
 export const updateSpawns = async (doInfluenceLogs = false) => {
@@ -139,6 +188,8 @@ export const updateSpawns = async (doInfluenceLogs = false) => {
     }
 
   });
+
+  await updateUnknownSystemTypes(spawns);
 
   if (changed) {
     console.log('Spawn sync updated ' + changedSpawnIds.length + ' spawn state(s).');

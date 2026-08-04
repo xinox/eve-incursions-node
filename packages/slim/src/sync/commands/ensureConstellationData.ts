@@ -3,6 +3,7 @@ import {Constellation} from '../models/Constellation';
 import {Region} from '../models/Region';
 import {fetchConstellation, fetchRegion, fetchSystem} from '../lib/esi';
 import {AppDataSource} from '../lib/data-source';
+import {In} from 'typeorm';
 
 export const ensureConstellationData = async (constellationIds: number[], requiredSystemIds?: number[]) => {
   const uniqueIds = [...new Set(constellationIds)];
@@ -34,33 +35,44 @@ async function ensureConstellation(constellationId: number, requiredSystemIds?: 
     console.log(`Created constellation: ${esiConstellation.name} (${constellationId})`);
   }
 
-  const systemIds = requiredSystemIds?.length
+  const systemIds: number[] = requiredSystemIds?.length
     ? [...new Set(requiredSystemIds)]
     : (esiConstellation ??= await fetchConstellation(constellationId)).systems;
 
+  const existingSystems = systemIds.length > 0
+    ? await System.find({where: {id: In(systemIds)}})
+    : [];
+  const existingSystemIds = new Set(existingSystems.map(system => system.id));
+  const missingSystemIds = systemIds.filter(systemId => !existingSystemIds.has(systemId));
+
+  const newSystems = (await Promise.all(missingSystemIds.map(async systemId => {
+    try {
+      const esiSystem = await fetchSystem(systemId);
+      const dbSystem = new System();
+      dbSystem.id = systemId;
+      dbSystem.name = esiSystem.name;
+      dbSystem.constellationId = constellationId;
+      dbSystem.sovereigntyHolderID = 0;
+      dbSystem.sovereigntyHolderName = '';
+      dbSystem.isIsland = false;
+      dbSystem.size = 0;
+      dbSystem.security = esiSystem.security_status;
+      dbSystem.type = 'not known';
+
+      return dbSystem;
+    } catch (e) {
+      console.error(`Failed to fetch system ${systemId}:`, e);
+      return null;
+    }
+  }))).filter((system): system is System => system !== null);
+
+  if (newSystems.length === 0) return;
+
   await AppDataSource.manager.transaction(async manager => {
-    for (const systemId of systemIds) {
-      try {
-        let dbSystem = await System.findOneBy({id: systemId});
-        if (dbSystem) continue;
+    await manager.save(newSystems);
 
-        const esiSystem = await fetchSystem(systemId);
-        dbSystem = new System();
-        dbSystem.id = systemId;
-        dbSystem.name = esiSystem.name;
-        dbSystem.constellationId = constellationId;
-        dbSystem.sovereigntyHolderID = 0;
-        dbSystem.sovereigntyHolderName = '';
-        dbSystem.isIsland = false;
-        dbSystem.size = 0;
-        dbSystem.security = esiSystem.security_status;
-        dbSystem.type = 'not known';
-
-        await manager.save(dbSystem);
-        console.log(`Created system: ${esiSystem.name} (${systemId}) sec=${esiSystem.security_status.toFixed(2)}`);
-      } catch (e) {
-        console.error(`Failed to fetch/save system ${systemId}:`, e);
-      }
+    for (const system of newSystems) {
+      console.log(`Created system: ${system.name} (${system.id}) sec=${system.security.toFixed(2)}`);
     }
   });
 }

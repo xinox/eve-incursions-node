@@ -31,16 +31,33 @@ export const updateSpawns = async (doInfluenceLogs = false) => {
   if (!Array.isArray(spawns)) return;
 
   const constellationIds = [...new Set(spawns.map(s => s.constellation_id))];
-  const stagingSystemIds = [...new Set(spawns.map(s => s.staging_solar_system_id))];
+  const requiredSystemIds = [...new Set(spawns.flatMap(spawn => [
+    ...spawn.infested_solar_systems,
+    spawn.staging_solar_system_id,
+  ]))];
   const knownConstellations = await Constellation.find({where: {id: In(constellationIds)}});
-  const knownStagingSystems = await System.find({where: {id: In(stagingSystemIds)}});
+  const knownSystems = requiredSystemIds.length > 0
+    ? await System.find({where: {id: In(requiredSystemIds)}})
+    : [];
   const knownConstellationIds = new Set(knownConstellations.map(c => c.id));
-  const knownStagingSystemIds = new Set(knownStagingSystems.map(system => system.id));
-  const missingStaticDataSpawns = spawns
-    .filter(spawn => !knownConstellationIds.has(spawn.constellation_id) || !knownStagingSystemIds.has(spawn.staging_solar_system_id));
+  const knownSystemIds = new Set(knownSystems.map(system => system.id));
 
-  for (const spawn of missingStaticDataSpawns) {
-    await ensureConstellationData([spawn.constellation_id], [spawn.staging_solar_system_id]);
+  for (const spawn of spawns) {
+    const spawnSystemIds = [...new Set([
+      ...spawn.infested_solar_systems,
+      spawn.staging_solar_system_id,
+    ])];
+    const missingSystemIds = spawnSystemIds.filter(systemId => !knownSystemIds.has(systemId));
+
+    if (!knownConstellationIds.has(spawn.constellation_id) || missingSystemIds.length > 0) {
+      await ensureConstellationData(
+        [spawn.constellation_id],
+        missingSystemIds.length > 0 ? missingSystemIds : spawnSystemIds,
+      );
+
+      missingSystemIds.forEach(systemId => knownSystemIds.add(systemId));
+      knownConstellationIds.add(spawn.constellation_id);
+    }
   }
 
   await AppDataSource.manager.transaction(async manager => {

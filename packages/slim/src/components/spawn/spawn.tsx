@@ -46,8 +46,8 @@ export const Spawn = ({ spawn }: { spawn: ActiveSpawnsQuery['activeSpawns'][0] }
             target="_blank"
             rel="noopener"
           >
-            <span className={styles.titleName}>{spawn.constellation.name}</span>
-            <span className={styles.titleRegion}>{spawn.constellation.region.name}</span>
+            <span className={styles.titleName}>{spawn.constellation.region.name}</span>
+            <span className={styles.titleRegion}>{spawn.constellation.name}</span>
           </a>
         </h2>
         <span className={classNames('state', `state-${spawn.state.toLocaleLowerCase()}`, styles.statePill)}>

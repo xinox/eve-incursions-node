@@ -2,6 +2,10 @@ import type {DataSource} from 'typeorm';
 
 export const SPAWN_SYNC_NAME = 'spawns';
 
+export type SpawnSyncStatusData = {
+  lastUpdatedAt: string | null;
+};
+
 const setupBySource = new WeakMap<DataSource, Promise<void>>();
 
 const ensureSyncStatusTable = async (source: DataSource) => {

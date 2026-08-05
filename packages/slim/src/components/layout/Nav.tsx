@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {useRouter} from 'next/router';
 import {useState} from 'react';
 import {ThemeToggle} from '../theme-toggle/theme-toggle';
+import {LiveDataFreshness} from '../status/dataFreshness';
 import {classNames} from '../../lib/utils';
 import styles from './Nav.module.css';
 
@@ -46,6 +47,9 @@ export const Nav = () => {
               {link.label}
             </Link>
           ))}
+          <div className={styles.statusWrap}>
+            <LiveDataFreshness />
+          </div>
           <div className={styles.toggleWrap}>
             <ThemeToggle/>
           </div>

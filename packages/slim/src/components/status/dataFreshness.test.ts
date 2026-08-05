@@ -17,7 +17,16 @@ describe('getDataFreshness', () => {
       tone: 'stale',
       label: 'Data unavailable',
       detail: 'No successful spawn update recorded.',
+      compactLabel: 'No sync',
+      compactAge: null,
     });
     expect(getDataFreshness('invalid', now).tone).toBe('stale');
+  });
+
+  it('provides a compact age for the navigation pill', () => {
+    expect(getDataFreshness('2026-08-05T10:12:00.000Z', now)).toMatchObject({
+      compactLabel: 'Live',
+      compactAge: '3m',
+    });
   });
 });

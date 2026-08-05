@@ -4,6 +4,7 @@ import {System} from './System';
 import {InfluenceLogEntry} from './InfluenceLogEntry';
 import {SpawnLog} from './SpawnLog';
 import {AppDataSource} from '../lib/data-source';
+import {getDateColumnType} from '../../lib/config';
 
 @Entity({
   name: 'spawns'
@@ -17,9 +18,9 @@ export class Spawn extends BaseEntity {
   active: boolean;
   @Column({name: 'hasBoss'})
   boss: boolean;
-  @Column({name: 'established_at', type: 'timestamp'})
+  @Column({name: 'established_at', type: getDateColumnType()})
   establishedAt: Date;
-  @Column({name: 'ended_at', type: 'timestamp', nullable: true})
+  @Column({name: 'ended_at', type: getDateColumnType(), nullable: true})
   endedAt: Date | null;
   @Column({type: 'float'})
   influence: number;

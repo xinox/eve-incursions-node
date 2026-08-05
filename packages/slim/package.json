@@ -11,6 +11,7 @@
     "sync:spawns": "ts-node --swc --project tsconfig.sync.json src/sync/run.ts updateSpawns --influenceLogs",
     "sync:sov": "ts-node --swc --project tsconfig.sync.json src/sync/run.ts updateSovereignty",
     "sync:rats": "ts-node --swc --project tsconfig.sync.json src/sync/run.ts updateRats",
+    "sync:indexes": "ts-node --swc --project tsconfig.sync.json src/sync/run.ts ensurePerformanceIndexes",
     "sync:all": "ts-node --swc --project tsconfig.sync.json src/sync/run.ts syncAll",
     "scheduler": "ts-node --swc --project tsconfig.sync.json src/sync/scheduler.ts"
   },

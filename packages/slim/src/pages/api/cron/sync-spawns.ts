@@ -1,6 +1,7 @@
 ﻿import 'reflect-metadata';
 import type {NextApiRequest, NextApiResponse} from 'next';
 import {ensureAppDataSource} from '../../../lib/data-source';
+import {ensurePerformanceIndexes} from '../../../lib/performance-indexes';
 import {updateSpawns} from '../../../sync/commands/updateSpawns';
 
 type SyncResponse = {
@@ -29,9 +30,12 @@ export const runSpawnSync = async (req: NextApiRequest, res: NextApiResponse<Syn
 
   try {
     console.log(`Cron ${syncLabel} sync initializing database.`);
-    await ensureAppDataSource();
+    const source = await ensureAppDataSource();
+    await ensurePerformanceIndexes(source);
     console.log(`Cron ${syncLabel} sync updating data.`);
     await updateSpawns(influenceLogs);
+    console.log(`Cron ${syncLabel} sync revalidating homepage.`);
+    await res.revalidate('/');
     console.log(`Cron ${syncLabel} sync completed.`);
 
     return res.status(200).json({

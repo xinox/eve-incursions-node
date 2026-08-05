@@ -95,6 +95,21 @@ describe('updateSpawns static data repair', () => {
     expect(mockEnsureConstellationData).not.toHaveBeenCalled();
   });
 
+  it('repairs known systems whose size is missing', async () => {
+    mockSystemFind.mockResolvedValue([
+      {id: 30000001, size: 0},
+      {id: 30000002, size: 72},
+      {id: 30000003, size: 84},
+    ]);
+
+    await updateSpawns();
+
+    expect(mockEnsureConstellationData).toHaveBeenCalledWith(
+      [20000001],
+      [30000001],
+    );
+  });
+
   it('stores resolved types for systems marked as not known', async () => {
     const vanguard = {id: 30000001, name: 'System A', type: 'not known'};
     const headquarters = {id: 30000002, name: 'System B', type: 'not known'};

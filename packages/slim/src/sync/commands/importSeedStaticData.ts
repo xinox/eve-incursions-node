@@ -14,17 +14,28 @@ type SqlValue = number | string | null;
 
 const extractInsertValues = (sql: string, table: string) => {
   const marker = `INSERT INTO \`${table}\` VALUES `;
-  const start = sql.indexOf(marker);
-  if (start === -1) {
+  const blocks: string[] = [];
+  let searchFrom = 0;
+
+  while (true) {
+    const start = sql.indexOf(marker, searchFrom);
+    if (start === -1) break;
+
+    const valuesStart = start + marker.length;
+    const end = sql.indexOf(';', valuesStart);
+    if (end === -1) {
+      throw new Error(`Could not find end of INSERT block for ${table}`);
+    }
+
+    blocks.push(sql.slice(valuesStart, end));
+    searchFrom = end + 1;
+  }
+
+  if (blocks.length === 0) {
     throw new Error(`Could not find INSERT block for ${table}`);
   }
 
-  const end = sql.indexOf(';', start);
-  if (end === -1) {
-    throw new Error(`Could not find end of INSERT block for ${table}`);
-  }
-
-  return sql.slice(start + marker.length, end);
+  return blocks.join(',');
 };
 
 const parseSqlRows = (input: string): SqlValue[][] => {

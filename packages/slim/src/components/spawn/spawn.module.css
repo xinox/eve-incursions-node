@@ -1,6 +1,7 @@
 .card {
   display: flex;
   flex-direction: column;
+  container-type: inline-size;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
@@ -9,12 +10,15 @@
 }
 
 .header {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: start;
+  column-gap: var(--sp-3);
+  row-gap: var(--sp-2);
   padding: var(--sp-4) var(--sp-4) var(--sp-3);
 }
 .sov {
+  grid-row: 1;
   width: 40px;
   height: 40px;
   border-radius: var(--r-sm);
@@ -22,19 +26,39 @@
   flex: none;
 }
 .title {
+  grid-column: 2;
   font-size: 1.25rem;
-  margin-right: auto;
   min-width: 0;
 }
 .title a {
+  display: block;
   color: var(--text);
 }
 .title a:hover {
   color: var(--accent);
   text-decoration: none;
 }
+.titleName {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.titleRegion {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 550;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+}
+.title a:hover .titleRegion {
+  color: var(--accent);
+}
 .statePill {
-  flex: none;
+  grid-column: 1 / -1;
+  justify-self: start;
+  max-width: 100%;
+  white-space: nowrap;
   font-size: 0.72rem;
   font-weight: 650;
   text-transform: uppercase;
@@ -43,6 +67,21 @@
   border-radius: var(--r-pill);
   background: var(--surface-2);
   border: 1px solid var(--border);
+}
+
+@container (min-width: 400px) {
+  .header {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    align-items: center;
+  }
+  .sov {
+    grid-row: 1;
+  }
+  .statePill {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+  }
 }
 
 .facts {

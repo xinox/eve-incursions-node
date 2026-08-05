@@ -46,7 +46,8 @@ export const Spawn = ({ spawn }: { spawn: ActiveSpawnsQuery['activeSpawns'][0] }
             target="_blank"
             rel="noopener"
           >
-            {spawn.constellation.name}
+            <span className={styles.titleName}>{spawn.constellation.name}</span>
+            <span className={styles.titleRegion}>{spawn.constellation.region.name}</span>
           </a>
         </h2>
         <span className={classNames('state', `state-${spawn.state.toLocaleLowerCase()}`, styles.statePill)}>
@@ -71,19 +72,6 @@ export const Spawn = ({ spawn }: { spawn: ActiveSpawnsQuery['activeSpawns'][0] }
               <div className={styles.bar} style={{ width: `${influencePct}%` }} />
             </div>
             <span className={styles.influenceVal}>{influencePct}%</span>
-          </dd>
-        </div>
-
-        <div className={styles.fact}>
-          <dt>Region</dt>
-          <dd>
-            <a
-              href={`https://evemaps.dotlan.net/map/${dotlanTransform(spawn.constellation.region.name)}`}
-              target="_blank"
-              rel="noopener"
-            >
-              {spawn.constellation.region.name}
-            </a>
           </dd>
         </div>
 

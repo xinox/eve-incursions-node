@@ -1,11 +1,14 @@
 import styles from './theme-toggle.module.css';
+import {useTheme} from '../../lib/useTheme';
 
 export const ThemeToggle = () => {
+  const theme = useTheme();
+
   return (
     <button
       type="button"
       className={styles.toggle}
-      aria-label="Toggle dark mode"
+      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
       onClick={() => {
         // @ts-ignore — set by the inline theme script in _document
         const current = window?.__theme;

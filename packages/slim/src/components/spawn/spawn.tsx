@@ -62,9 +62,11 @@ export const Spawn = ({ spawn }: { spawn: ActiveSpawnsQuery['activeSpawns'][0] }
             <div
               className={styles.progress}
               role="progressbar"
+              aria-label={`Sansha influence in ${spawn.constellation.name}`}
               aria-valuenow={influencePct}
               aria-valuemin={0}
               aria-valuemax={100}
+              aria-valuetext={`${influencePct}%`}
             >
               <div className={styles.bar} style={{ width: `${influencePct}%` }} />
             </div>
@@ -128,7 +130,10 @@ export const Spawn = ({ spawn }: { spawn: ActiveSpawnsQuery['activeSpawns'][0] }
       </dl>
 
       <div className={styles.chart}>
-        <Chart influenceLogArray={spawn.influenceLogArray} />
+        <Chart
+          influenceLogArray={spawn.influenceLogArray}
+          accessibleLabel={`Sansha influence history for ${spawn.constellation.name} over the last 72 hours`}
+        />
       </div>
 
       <Systems systems={spawn.constellation.systems} />

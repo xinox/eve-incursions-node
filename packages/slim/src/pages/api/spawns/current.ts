@@ -1,12 +1,12 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
-import type {ActiveSpawnsQuery} from '../../../lib/graphql';
-import {getActiveSpawns} from '../../../lib/db';
+import type {CurrentSpawnsData} from '../../../lib/current-spawns';
+import {getCurrentSpawnsData} from '../../../lib/current-spawns';
 
 type ErrorResponse = {error: string};
 
 export const currentSpawnsHandler = async (
   req: NextApiRequest,
-  res: NextApiResponse<ActiveSpawnsQuery | ErrorResponse>,
+  res: NextApiResponse<CurrentSpawnsData | ErrorResponse>,
 ) => {
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
@@ -14,7 +14,7 @@ export const currentSpawnsHandler = async (
   }
 
   try {
-    const data = await getActiveSpawns();
+    const data = await getCurrentSpawnsData();
     res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=30, stale-while-revalidate=30');
     return res.status(200).json(data);
   } catch (error) {

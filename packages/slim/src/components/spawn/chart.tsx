@@ -8,13 +8,16 @@ ChartJS.register(Tooltip, LineController, LineElement, PointElement, LinearScale
 
 const LABELS = ["-72h", "", "", "", "", "", "", "", "", "", "", "", "-60h", "", "", "", "", "", "", "", "", "", "", "", "-48h", "", "", "", "", "", "", "", "", "", "", "", "-36h", "", "", "", "", "", "", "", "", "", "", "", "-24h", "", "", "", "", "", "", "", "", "", "", "", "-12h", "", "", "", "", "", "", "", "", "", "", "now"];
 
-export const Chart = ({influenceLogArray}: { influenceLogArray: ActiveSpawnsQuery['activeSpawns'][0]['influenceLogArray'] }) => {
+export const Chart = ({influenceLogArray, accessibleLabel}: {
+  influenceLogArray: ActiveSpawnsQuery['activeSpawns'][0]['influenceLogArray'];
+  accessibleLabel: string;
+}) => {
   const theme = useTheme();
   const dark = theme === 'dark';
 
-  const accent = dark ? '#2bb3df' : '#0e93c4';
+  const accent = dark ? '#2bb3df' : '#0b7aa3';
   const grid = dark ? 'rgba(255,255,255,0.06)' : 'rgba(16,24,40,0.07)';
-  const ticks = dark ? '#7c8696' : '#98a2b3';
+  const ticks = dark ? '#98a2b2' : '#5b6573';
   const crosshair = dark ? 'rgba(255,255,255,0.18)' : 'rgba(16,24,40,0.18)';
   const surface = dark ? '#1d212a' : '#ffffff';
   const border = dark ? '#272d38' : '#e3e7ee';
@@ -50,8 +53,8 @@ export const Chart = ({influenceLogArray}: { influenceLogArray: ActiveSpawnsQuer
           const {ctx: c, chartArea} = chart;
           if (!chartArea) return 'transparent';
           const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-          g.addColorStop(0, dark ? 'rgba(43,179,223,0.32)' : 'rgba(14,147,196,0.26)');
-          g.addColorStop(1, dark ? 'rgba(43,179,223,0.01)' : 'rgba(14,147,196,0.01)');
+          g.addColorStop(0, dark ? 'rgba(43,179,223,0.32)' : 'rgba(11,122,163,0.26)');
+          g.addColorStop(1, dark ? 'rgba(43,179,223,0.01)' : 'rgba(11,122,163,0.01)');
           return g;
         },
         borderColor: accent,
@@ -114,7 +117,13 @@ export const Chart = ({influenceLogArray}: { influenceLogArray: ActiveSpawnsQuer
 
   return (
     <div style={{position: 'relative', height: 170}}>
-      <Line data={data} options={options} plugins={[crosshairPlugin]}/>
+      <Line
+        data={data}
+        options={options}
+        plugins={[crosshairPlugin]}
+        role="img"
+        aria-label={accessibleLabel}
+      />
     </div>
   );
 };

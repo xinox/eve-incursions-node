@@ -2,6 +2,7 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
 import {ensureAppDataSource} from '../../../lib/data-source';
 import {ensurePerformanceIndexes} from '../../../lib/performance-indexes';
+import {recordSuccessfulSpawnSync} from '../../../lib/sync-status';
 import {updateSpawns} from '../../../sync/commands/updateSpawns';
 
 type SyncResponse = {
@@ -34,6 +35,10 @@ export const runSpawnSync = async (req: NextApiRequest, res: NextApiResponse<Syn
     await ensurePerformanceIndexes(source);
     console.log(`Cron ${syncLabel} sync updating data.`);
     await updateSpawns(influenceLogs);
+    if (!influenceLogs) {
+      console.log('Cron spawns sync recording heartbeat.');
+      await recordSuccessfulSpawnSync(source);
+    }
     console.log(`Cron ${syncLabel} sync revalidating homepage.`);
     await res.revalidate('/');
     console.log(`Cron ${syncLabel} sync completed.`);

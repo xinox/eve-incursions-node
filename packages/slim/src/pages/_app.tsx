@@ -7,12 +7,12 @@ import {useEffect, useRef, useState} from 'react';
 import Head from 'next/head';
 import {useRouter} from 'next/router';
 import {Nav} from '../components/layout/Nav';
-import {PageSkeleton} from '../components/loading/loadingSkeleton';
+import {RouteSkeleton} from '../components/loading/loadingSkeleton';
 
 function MyApp({Component, pageProps}: AppProps) {
   const router = useRouter();
   const loadingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [isHomeLoading, setIsHomeLoading] = useState(false);
+  const [loadingPath, setLoadingPath] = useState<string | null>(null);
 
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
@@ -29,12 +29,11 @@ function MyApp({Component, pageProps}: AppProps) {
     const clearLoading = () => {
       if (loadingTimer.current) clearTimeout(loadingTimer.current);
       loadingTimer.current = null;
-      setIsHomeLoading(false);
+      setLoadingPath(null);
     };
     const startLoading = (url: string) => {
-      if (url.split('?')[0] !== '/') return;
       if (loadingTimer.current) clearTimeout(loadingTimer.current);
-      loadingTimer.current = setTimeout(() => setIsHomeLoading(true), 150);
+      loadingTimer.current = setTimeout(() => setLoadingPath(url), 150);
     };
 
     router.events.on('routeChangeStart', startLoading);
@@ -59,7 +58,7 @@ function MyApp({Component, pageProps}: AppProps) {
         <Nav/>
         <main className="main">
           <div className="container">
-            {isHomeLoading ? <PageSkeleton /> : <Component {...pageProps} />}
+            {loadingPath ? <RouteSkeleton path={loadingPath} /> : <Component {...pageProps} />}
           </div>
         </main>
         <footer className="footer">

@@ -5,6 +5,7 @@ import {updateSovereignty} from './commands/updateSovereignty';
 import {updateSpawns} from './commands/updateSpawns';
 import {calculateHSSpawn} from './commands/calculateHSSpawn';
 import {AppDataSource} from './lib/data-source';
+import {ensurePerformanceIndexes} from '../lib/performance-indexes';
 
 const commands: Record<string, (args: string[]) => Promise<void>> = {
   importSeedStaticData: async () => importSeedStaticData(),
@@ -12,6 +13,7 @@ const commands: Record<string, (args: string[]) => Promise<void>> = {
   updateSovereignty: async () => updateSovereignty(),
   updateRats: async () => updateRats(),
   calculateHSSpawn: async () => calculateHSSpawn(),
+  ensurePerformanceIndexes: async () => ensurePerformanceIndexes(AppDataSource),
   syncAll: async () => {
     await importSeedStaticData();
     await updateSpawns(true);

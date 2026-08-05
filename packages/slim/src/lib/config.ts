@@ -10,6 +10,8 @@ export const getDbMode = (): DbMode => {
 
 export const getDbFile = () => process.env.DB_FILE || path.join(process.cwd(), 'data', 'app.db');
 
+export const getDateColumnType = (): 'timestamp' | 'datetime' => getDbMode() === 'supabase' ? 'timestamp' : 'datetime';
+
 export const getDatabaseUrl = () => process.env.DATABASE_URL || '';
 
 export const getDbSynchronize = () => {

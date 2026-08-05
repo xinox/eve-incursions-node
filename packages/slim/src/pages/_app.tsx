@@ -3,11 +3,17 @@ import '../styles/globals.css';
 import '../styles/tables.css';
 import '../styles/footer.css';
 import {AppProps} from 'next/app';
-import {useEffect} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import Head from 'next/head';
+import {useRouter} from 'next/router';
 import {Nav} from '../components/layout/Nav';
+import {RouteSkeleton} from '../components/loading/loadingSkeleton';
 
 function MyApp({Component, pageProps}: AppProps) {
+  const router = useRouter();
+  const loadingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [loadingPath, setLoadingPath] = useState<string | null>(null);
+
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
     if (process.env.NODE_ENV === 'production') {
@@ -19,6 +25,29 @@ function MyApp({Component, pageProps}: AppProps) {
     }
   }, []);
 
+  useEffect(() => {
+    const clearLoading = () => {
+      if (loadingTimer.current) clearTimeout(loadingTimer.current);
+      loadingTimer.current = null;
+      setLoadingPath(null);
+    };
+    const startLoading = (url: string) => {
+      if (loadingTimer.current) clearTimeout(loadingTimer.current);
+      loadingTimer.current = setTimeout(() => setLoadingPath(url), 150);
+    };
+
+    router.events.on('routeChangeStart', startLoading);
+    router.events.on('routeChangeComplete', clearLoading);
+    router.events.on('routeChangeError', clearLoading);
+
+    return () => {
+      if (loadingTimer.current) clearTimeout(loadingTimer.current);
+      router.events.off('routeChangeStart', startLoading);
+      router.events.off('routeChangeComplete', clearLoading);
+      router.events.off('routeChangeError', clearLoading);
+    };
+  }, [router.events]);
+
   return (
     <>
       <Head>
@@ -29,7 +58,7 @@ function MyApp({Component, pageProps}: AppProps) {
         <Nav/>
         <main className="main">
           <div className="container">
-            <Component {...pageProps} />
+            {loadingPath ? <RouteSkeleton path={loadingPath} /> : <Component {...pageProps} />}
           </div>
         </main>
         <footer className="footer">

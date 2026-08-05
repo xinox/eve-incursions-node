@@ -1,11 +1,17 @@
 ﻿import { useEffect, useState } from 'react';
 import Countdown from 'react-countdown';
+import dynamic from 'next/dynamic';
 import TimeAgo from 'react-timeago';
+import {ChartSkeleton} from '../loading/loadingSkeleton';
 import { ActiveSpawnsQuery } from '../../lib/graphql';
 import { classNames, dotlanTransform } from '../../lib/utils';
-import { Chart } from './chart';
 import { Systems } from './systems';
 import styles from './spawn.module.css';
+
+const Chart = dynamic(
+  () => import('./chart').then(module => module.Chart),
+  {ssr: false, loading: ChartSkeleton},
+);
 
 export const Spawn = ({ spawn }: { spawn: ActiveSpawnsQuery['activeSpawns'][0] }) => {
   const [hasMounted, setHasMounted] = useState(false);

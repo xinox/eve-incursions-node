@@ -1,5 +1,5 @@
-import {ActiveSpawnsQuery} from '../lib/graphql';
 import {GetStaticProps} from 'next';
+import {ActiveSpawnsQuery} from '../lib/graphql';
 import {getActiveSpawns} from '../lib/db';
 import {LastHsSpawn} from '../components/spawn/lastHsSpawn';
 import {RespawnWindows} from '../components/spawn/respawnWindows';

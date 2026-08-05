@@ -18,20 +18,20 @@
   --text-faint: #8a93a3;
 
   /* brand / accent (EVE cyan) */
-  --accent: #0e93c4;
-  --accent-strong: #0b7aa3;
+  --accent: #0b7aa3;
+  --accent-strong: #075f80;
   --accent-contrast: #ffffff;
-  --accent-soft: rgba(14, 147, 196, 0.12);
+  --accent-soft: rgba(11, 122, 163, 0.12);
 
   /* security status */
-  --sec-high: #1c8c3b;
-  --sec-low: #b07d09;
+  --sec-high: #187d35;
+  --sec-low: #765400;
   --sec-null: #c23b2b;
 
   /* incursion state */
-  --state-established: #0e93c4;
-  --state-mobilizing: #b07d09;
-  --state-withdrawing: #a945c4;
+  --state-established: #076f94;
+  --state-mobilizing: #765400;
+  --state-withdrawing: #87329f;
   --state-ended: #c23b2b;
 
   /* effects */

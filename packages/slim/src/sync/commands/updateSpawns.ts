@@ -90,6 +90,7 @@ export const updateSpawns = async (doInfluenceLogs = false) => {
     : [];
   const knownConstellationIds = new Set(knownConstellations.map(c => c.id));
   const knownSystemIds = new Set(knownSystems.map(system => system.id));
+  const systemsWithMissingSize = new Set(knownSystems.filter(system => system.size <= 0).map(system => system.id));
 
   for (const spawn of spawns) {
     const spawnSystemIds = [...new Set([
@@ -97,14 +98,17 @@ export const updateSpawns = async (doInfluenceLogs = false) => {
       spawn.staging_solar_system_id,
     ])];
     const missingSystemIds = spawnSystemIds.filter(systemId => !knownSystemIds.has(systemId));
+    const incompleteSystemIds = spawnSystemIds.filter(systemId => systemsWithMissingSize.has(systemId));
+    const systemsToEnsure = [...new Set([...missingSystemIds, ...incompleteSystemIds])];
 
-    if (!knownConstellationIds.has(spawn.constellation_id) || missingSystemIds.length > 0) {
+    if (!knownConstellationIds.has(spawn.constellation_id) || systemsToEnsure.length > 0) {
       await ensureConstellationData(
         [spawn.constellation_id],
-        missingSystemIds.length > 0 ? missingSystemIds : spawnSystemIds,
+        systemsToEnsure.length > 0 ? systemsToEnsure : spawnSystemIds,
       );
 
       missingSystemIds.forEach(systemId => knownSystemIds.add(systemId));
+      incompleteSystemIds.forEach(systemId => systemsWithMissingSize.delete(systemId));
       knownConstellationIds.add(spawn.constellation_id);
     }
   }

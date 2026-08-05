@@ -4,6 +4,7 @@ import {Region} from '../models/Region';
 import {fetchConstellation, fetchRegion, fetchSystem} from '../lib/esi';
 import {AppDataSource} from '../lib/data-source';
 import {In} from 'typeorm';
+import {getSeedSystemSize} from '../../lib/system-size';
 
 export const ensureConstellationData = async (constellationIds: number[], requiredSystemIds?: number[]) => {
   const uniqueIds = [...new Set(constellationIds)];
@@ -44,6 +45,7 @@ async function ensureConstellation(constellationId: number, requiredSystemIds?: 
     : [];
   const existingSystemIds = new Set(existingSystems.map(system => system.id));
   const missingSystemIds = systemIds.filter(systemId => !existingSystemIds.has(systemId));
+  const systemsWithMissingSize = existingSystems.filter(system => system.size <= 0);
 
   const newSystems = (await Promise.all(missingSystemIds.map(async systemId => {
     try {
@@ -55,7 +57,7 @@ async function ensureConstellation(constellationId: number, requiredSystemIds?: 
       dbSystem.sovereigntyHolderID = 0;
       dbSystem.sovereigntyHolderName = '';
       dbSystem.isIsland = false;
-      dbSystem.size = 0;
+      dbSystem.size = getSeedSystemSize(systemId) ?? 0;
       dbSystem.security = esiSystem.security_status;
       dbSystem.type = 'not known';
 
@@ -66,13 +68,23 @@ async function ensureConstellation(constellationId: number, requiredSystemIds?: 
     }
   }))).filter((system): system is System => system !== null);
 
-  if (newSystems.length === 0) return;
+  for (const system of systemsWithMissingSize) {
+    const seedSize = getSeedSystemSize(system.id);
+    if (seedSize !== null) system.size = seedSize;
+  }
+
+  const repairedSystems = systemsWithMissingSize.filter(system => system.size > 0);
+  if (newSystems.length === 0 && repairedSystems.length === 0) return;
 
   await AppDataSource.manager.transaction(async manager => {
-    await manager.save(newSystems);
+    await manager.save([...newSystems, ...repairedSystems]);
 
     for (const system of newSystems) {
       console.log(`Created system: ${system.name} (${system.id}) sec=${system.security.toFixed(2)}`);
+    }
+
+    if (repairedSystems.length > 0) {
+      console.log(`Repaired ${repairedSystems.length} missing system size(s).`);
     }
   });
 }

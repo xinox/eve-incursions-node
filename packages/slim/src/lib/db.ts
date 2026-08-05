@@ -1,6 +1,7 @@
 ﻿import {DataSource} from 'typeorm';
 import {ensureAppDataSource} from './data-source';
 import {ActiveCommunitiesQuery, ActiveSpawnsQuery, Constellation, IncursionRespawnWindow, Rat, RatGroupsQuery, SolarSystem, Spawn, SpawnLogsQuery, Station} from './graphql';
+import {displaySystemSize} from './system-size';
 
 type SqlValue = string | number | Uint8Array | boolean | Date | null;
 type Row = Record<string, SqlValue>;
@@ -89,8 +90,6 @@ const displaySecurity = (value: SqlValue) => {
   const security = Number(value ?? 0);
   return security > 0 ? Number(security.toFixed(1)) : Number(security.toFixed(2));
 };
-
-const displaySize = (value: SqlValue) => (Number(value ?? 0) + 17) * 2;
 
 const activeSpawnRows = (source: DataSource) => queryRows(source, `
   select
@@ -241,7 +240,7 @@ const hydrateActiveSpawns = (spawnRows: Row[], stationRows: Row[], influenceRows
       name: text(row.systemName),
       security,
       securityArea: securityArea(security),
-      size: displaySize(row.systemSize),
+      size: displaySystemSize(row.systemSize),
       type: text(row.systemType || 'not known'),
       sovereigntyHolderID: number(row.sovereigntyHolderID),
       sovereigntyHolderName: text(row.sovereigntyHolderName),
@@ -480,7 +479,7 @@ export const getSpawnLogs = async (page = 1): Promise<SpawnLogsQuery> => {
           name: text(row.solarSystemName),
           security,
           securityArea: securityArea(security),
-          size: displaySize(row.systemSize),
+          size: displaySystemSize(row.systemSize),
           type: text(row.systemType || 'Staging'),
           sovereigntyHolderID: number(row.sovereigntyHolderID),
           sovereigntyHolderName: text(row.sovereigntyHolderName),

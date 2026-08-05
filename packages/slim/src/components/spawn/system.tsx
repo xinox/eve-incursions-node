@@ -28,7 +28,7 @@ export const System = ({system}: { system: ActiveSpawnsQuery['activeSpawns'][0][
           <a href={`https://evemaps.dotlan.net/system/${dotlanTransform(system.name)}`} target="_blank" rel="noopener">{system.name}</a>
         </td>
         <td className={classNames(styles.num, 'sec', `sec-${system.securityArea}`)}>{system.security}</td>
-        <td className={styles.num}>{system.size} AU</td>
+        <td className={styles.num}>{system.size > 0 ? `${system.size} AU` : '—'}</td>
       </tr>
       {hasStations && (
         <tr className={styles.stationsRow}>

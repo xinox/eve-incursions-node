@@ -1,5 +1,6 @@
 ﻿import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn} from 'typeorm';
 import {Constellation} from './Constellation';
+import {displaySystemSize} from '../../lib/system-size';
 
 @Entity({
   name: 'solar_systems'
@@ -24,7 +25,7 @@ export class System extends BaseEntity {
   @Column({
     name: 'systemSize',
     transformer: {
-      from: value => value != null && !isNaN(parseInt(value)) ? (parseInt(value) + 17) * 2 : 0,
+      from: value => displaySystemSize(value),
       to: value => value
     }
   })
